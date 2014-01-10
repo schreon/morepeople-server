@@ -63,8 +63,24 @@ class FlaskAppTestCase(unittest.TestCase):
             self.assertTrue(server.queue.find_one(user) is not None)
 
     def test_try_matching(self):
-        """ If there are enough users who are close enough to each other, a match should take place and they should be removed from the queue """
+        """ If there are enough users who are close enough to each other and who have the same match type, a match should take place and they should be removed from the queue """
+        # TODO
+        pass
 
+    def test_different_matchtypes_no_matching(self):
+        """ If there are enough users who are close enough to each other, but they have different match types selected, nothing should happen """
+        # TODO
+        pass
+
+    def test_too_far_away_no_matching(self):
+        """ If there are enough users who are not close enough to each other, even though they have the same match types selected, nothing should happen """
+        # TODO
+        pass
+
+    def test_closest_place_should_be_chosen(self):
+        """ If there are enough users who are close enough to each other, and they have different match types selected, the closest known meeting place should be chosen """
+        # TODO
+        pass
 
 if __name__ == '__main__':
     unittest.main()

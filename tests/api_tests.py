@@ -2,7 +2,7 @@ import unittest
 import inspect
 import server
 import json
-
+import os
 
 class FlaskAppTestCase(unittest.TestCase):
 
@@ -10,7 +10,7 @@ class FlaskAppTestCase(unittest.TestCase):
     def setUpClass(self):
         # chooses testing config, i.e. in-memory db:
         self.app = server.app.test_client()
-        server.connect("mongodb://localhost:27017/")
+        server.connect(os.environ['BOCK_MONGO_TEST_DB'])
         server.queue.remove({})
 
     def test_server_being_up(self):
@@ -61,6 +61,10 @@ class FlaskAppTestCase(unittest.TestCase):
 
             # should be there now
             self.assertTrue(server.queue.find_one(user) is not None)
+
+    def test_try_matching(self):
+        """ If there are enough users who are close enough to each other, a match should take place and they should be removed from the queue """
+
 
 if __name__ == '__main__':
     unittest.main()

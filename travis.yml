@@ -2,8 +2,7 @@ language: python
 python:
   - "2.7"
 env: 
-  global:
-  	- "BOCK_MONGO_TEST_DB=mongodb://localhost/"
+  - BOCK_MONGO_TEST_DB=localhost FOO=BAR
 services: mongodb
 # command to install dependencies
 install: "pip install -r requirements.txt"

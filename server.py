@@ -28,7 +28,7 @@ formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(messag
 file_handler.setFormatter(formatter)
 app.logger.addHandler(file_handler)
 
-
+app.logger.setLevel(logging.INFO)
 api = flask.ext.restful.Api(app)
 
 USER_ID = "USER_ID"
@@ -51,6 +51,7 @@ def connect(url):
 
 @app.route("/")
 def get_index():
+    app.logger.info("index.html")
     # return static_folder
     return app.send_static_file('index.html')
 
@@ -97,7 +98,7 @@ def post_search_tag():
             result.append(tag[MATCH_TAG])
     except Exception as e:
         app.logger.error(e)
-    
+
     # TODO: fuzzy search
     return flask.jsonify({RESULTS : result})
 

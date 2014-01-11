@@ -10,6 +10,8 @@ class FlaskAppTestCase(unittest.TestCase):
     def setUpClass(self):
         # chooses testing config, i.e. in-memory db:
         self.app = server.app.test_client()
+        for env in os.environ:
+            print env
         server.connect(os.environ['BOCK_MONGO_TEST_DB'])
         server.queue.remove({})
         server.tags.remove({})

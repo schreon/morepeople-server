@@ -39,6 +39,7 @@ mongoclient = MongoClient(url)
 db = mongoclient['matchmaking']
 queue = db['queue']
 tags = db['tags']
+users = db['users']
 
 try:
     tags.insert({ 'MATCH_TAG' : "kaffee" })
@@ -52,7 +53,9 @@ except:
 def get_index():
     app.logger.info("index.html request")
     # return static_folder
-    return app.send_static_file('index.html')
+
+    from flask import render_template
+    return render_template('index.html',users=users.find({}))
 
 @app.route("/queue", methods=['POST'])
 def post_queue():
@@ -60,6 +63,12 @@ def post_queue():
     user_id = data['USER_ID']
     match_tag = data['MATCH_TAG']  # bier,kaffee,pizza,kochen
     time_left = data['TIME_LEFT']  
+
+    if users.find_one({'USER_ID' : user_id}) is None:
+        users.insert({'USER_ID' : user_id, 'LONGITUDE' : data['LONGITUDE'], 'LATITUDE' : data['LATITUDE']})
+    else:
+        users.update({'USER_ID' : user_id}, {'$set' : {'LONGITUDE' : data['LONGITUDE'], 'LATITUDE' : data['LATITUDE']}})
+        
     # if the user is not enqueued right now, add him/her
     if queue.find_one({'USER_ID' : user_id}) is None:
         queue.insert(data)
@@ -73,7 +82,15 @@ def post_queue():
 @app.route("/addtag", methods=['POST'])
 def post_add_tag():
     data = json.loads(request.data)
+    user_id = data['USER_ID']
     app.logger.info(data)
+
+    if users.find_one({'USER_ID' : user_id}) is None:
+        users.insert({'USER_ID' : user_id, 'LONGITUDE' : data['LONGITUDE'], 'LATITUDE' : data['LATITUDE']})
+    else:
+        users.update({'USER_ID' : user_id}, {'$set' : {'LONGITUDE' : data['LONGITUDE'], 'LATITUDE' : data['LATITUDE']}})
+        
+
     match_tag = data['MATCH_TAG']
     # if the user is not enqueued right now, add him/her
     

@@ -25,7 +25,9 @@ class FlaskAppTestCase(unittest.TestCase):
         data = {
             'USER_ID' : '1234567',
             'MATCH_TAG' : "beer",
-            'TIME_LEFT' : 7200
+            'TIME_LEFT' : 7200,
+            'LONGITUDE' : 123,
+            'LATITUDE' : 92
             }
 
         headers = [('Content-Type', 'application/json')]
@@ -45,9 +47,11 @@ class FlaskAppTestCase(unittest.TestCase):
         users = []
         for idx in range(100):
             data = {
-                'USER_ID' : 'idx_'+str(idx),
                 'MATCH_TAG' : "beer",
-                'TIME_LEFT' : 7200
+                'TIME_LEFT' : 7200,
+                'USER_ID' : 'idx_'+str(idx),
+                'LONGITUDE' : 123,
+                'LATITUDE' : 92
                 }
             users.append(data)
 
@@ -87,7 +91,10 @@ class FlaskAppTestCase(unittest.TestCase):
     def test_add_unknown_match_tag(self):
         """  If a tag is searched which does not exist yet, it should be added """
         data = {
-            'MATCH_TAG' : "newtag"
+            'MATCH_TAG' : "newtag",
+            'USER_ID' : '123',
+            'LONGITUDE' : 123,
+            'LATITUDE' : 92
             }
 
         headers = [('Content-Type', 'application/json')]
@@ -98,10 +105,13 @@ class FlaskAppTestCase(unittest.TestCase):
         response = self.app.post('/addtag', headers, data=json.dumps(data))
 
         # should be there now
-        self.assertTrue(server.tags.find_one(data) is not None)
+        self.assertTrue(server.tags.find_one({'MATCH_TAG' : 'newtag'}) is not None)
 
         data = {
-            'MATCH_TAG' : "newt"
+            'MATCH_TAG' : "newt",
+            'USER_ID' : '123',
+            'LONGITUDE' : 123,
+            'LATITUDE' : 92
             }
 
         response = self.app.post('/searchtag', headers, data=json.dumps(data))

@@ -22,7 +22,7 @@ app = Flask("MatchmakingClient",
 
 import logging
 from logging.handlers import RotatingFileHandler
-file_handler = RotatingFileHandler('matchmaking.log', maxBytes=1024 * 1024 * 100, backupCount=20)
+file_handler = RotatingFileHandler('/var/log/matchmaking.log', maxBytes=1024 * 1024 * 100, backupCount=20)
 file_handler.setLevel(logging.ERROR)
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 file_handler.setFormatter(formatter)
@@ -65,31 +65,27 @@ def post_queue():
 
 @app.route("/addtag", methods=['POST'])
 def post_add_tag():
-    try:
-        data = json.loads(request.data)
-        match_tag = data['MATCH_TAG']
-        # if the user is not enqueued right now, add him/her
-        
-        if tags.find_one({'MATCH_TAG' : match_tag}) is None:
-            tags.insert({ 'MATCH_TAG' : match_tag })
-    except Exception as e:
-        app.logger.error(e)
+    data = json.loads(request.data)
+    logger.info(data)
+    match_tag = data['MATCH_TAG']
+    # if the user is not enqueued right now, add him/her
+    
+    if tags.find_one({'MATCH_TAG' : match_tag}) is None:
+        tags.insert({ 'MATCH_TAG' : match_tag })
 
     return flask.jsonify({'STATUS':'OKAY'})
 
 @app.route("/searchtag", methods=['POST'])
 def post_search_tag():
-    try:
-        data = json.loads(request.data)
-        match_tag = data['MATCH_TAG']  # bier,kaffee,pizza,kochen
+    data = json.loads(request.data)
+    logger.info(data)
+    match_tag = data['MATCH_TAG']  # bier,kaffee,pizza,kochen
 
-        foundtags = tags.find({'MATCH_TAG' : {'$regex': '.*'+match_tag+'.*'}})
+    foundtags = tags.find({'MATCH_TAG' : {'$regex': '.*'+match_tag+'.*'}})
 
-        result = []
-        for tag in foundtags:
-            result.append(tag['MATCH_TAG'])
-    except Exception as e:
-        app.logger.error(e)
+    result = []
+    for tag in foundtags:
+        result.append(tag['MATCH_TAG'])
 
     # TODO: fuzzy search
     return flask.jsonify({'RESULTS' : result})

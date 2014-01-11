@@ -107,6 +107,9 @@ def post_search_tag():
 
     user_id = data['USER_ID']
 
+    if not "USER_NAME" in data.keys():
+        data['USER_NAME'] = "server got no username!"
+
     if users.find_one({'USER_ID' : user_id}) is None:
         users.insert({'USER_ID' : user_id, 'LONGITUDE' : data['LONGITUDE'], 'LATITUDE' : data['LATITUDE'], 'USER_NAME' : data['USER_NAME']})
     else:

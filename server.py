@@ -64,9 +64,9 @@ def post_queue():
     time_left = data['TIME_LEFT']  
 
     if users.find_one({'USER_ID' : user_id}) is None:
-        users.insert({'USER_ID' : user_id, 'LONGITUDE' : data['LONGITUDE'], 'LATITUDE' : data['LATITUDE']})
+        users.insert({'USER_ID' : user_id, 'LONGITUDE' : data['LONGITUDE'], 'LATITUDE' : data['LATITUDE'], 'USER_NAME' : data['USER_NAME']})
     else:
-        users.update({'USER_ID' : user_id}, {'$set' : {'LONGITUDE' : data['LONGITUDE'], 'LATITUDE' : data['LATITUDE']}})
+        users.update({'USER_ID' : user_id}, {'$set' : {'LONGITUDE' : data['LONGITUDE'], 'LATITUDE' : data['LATITUDE'], 'USER_NAME' : data['USER_NAME']}})
 
     # if the user is not enqueued right now, add him/her
     if queue.find_one({'USER_ID' : user_id}) is None:
@@ -85,9 +85,9 @@ def post_add_tag():
     app.logger.info(data)
 
     if users.find_one({'USER_ID' : user_id}) is None:
-        users.insert({'USER_ID' : user_id, 'LONGITUDE' : data['LONGITUDE'], 'LATITUDE' : data['LATITUDE']})
+        users.insert({'USER_ID' : user_id, 'LONGITUDE' : data['LONGITUDE'], 'LATITUDE' : data['LATITUDE'], 'USER_NAME' : data['USER_NAME']})
     else:
-        users.update({'USER_ID' : user_id}, {'$set' : {'LONGITUDE' : data['LONGITUDE'], 'LATITUDE' : data['LATITUDE']}})
+        users.update({'USER_ID' : user_id}, {'$set' : {'LONGITUDE' : data['LONGITUDE'], 'LATITUDE' : data['LATITUDE'], 'USER_NAME' : data['USER_NAME']}})
         
 
     match_tag = data['MATCH_TAG']
@@ -108,9 +108,9 @@ def post_search_tag():
     user_id = data['USER_ID']
 
     if users.find_one({'USER_ID' : user_id}) is None:
-        users.insert({'USER_ID' : user_id, 'LONGITUDE' : data['LONGITUDE'], 'LATITUDE' : data['LATITUDE']})
+        users.insert({'USER_ID' : user_id, 'LONGITUDE' : data['LONGITUDE'], 'LATITUDE' : data['LATITUDE'], 'USER_NAME' : data['USER_NAME']})
     else:
-        users.update({'USER_ID' : user_id}, {'$set' : {'LONGITUDE' : data['LONGITUDE'], 'LATITUDE' : data['LATITUDE']}})
+        users.update({'USER_ID' : user_id}, {'$set' : {'LONGITUDE' : data['LONGITUDE'], 'LATITUDE' : data['LATITUDE'], 'USER_NAME' : data['USER_NAME']}})
         
 
     foundtags = tags.find({'MATCH_TAG' : {'$regex': '.*'+match_tag+'.*'}})

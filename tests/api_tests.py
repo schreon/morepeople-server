@@ -24,9 +24,9 @@ class FlaskAppTestCase(unittest.TestCase):
     def test_enqueue_user(self):
         """ Test if client is correctly enqueued """
         data = {
-            server.USER_ID : '1234567',
-            server.MATCH_TAG : "beer",
-            server.TIME_LEFT : 7200
+            'USER_ID' : '1234567',
+            'MATCH_TAG' : "beer",
+            'TIME_LEFT' : 7200
             }
 
         headers = [('Content-Type', 'application/json')]
@@ -46,9 +46,9 @@ class FlaskAppTestCase(unittest.TestCase):
         users = []
         for idx in range(100):
             data = {
-                server.USER_ID : 'idx_'+str(idx),
-                server.MATCH_TAG : "beer",
-                server.TIME_LEFT : 7200
+                'USER_ID' : 'idx_'+str(idx),
+                'MATCH_TAG' : "beer",
+                'TIME_LEFT' : 7200
                 }
             users.append(data)
 
@@ -88,7 +88,7 @@ class FlaskAppTestCase(unittest.TestCase):
     def test_add_unknown_match_tag(self):
         """  If a tag is searched which does not exist yet, it should be added """
         data = {
-            server.MATCH_TAG : "newtag"
+            'MATCH_TAG' : "newtag"
             }
 
         headers = [('Content-Type', 'application/json')]
@@ -102,14 +102,14 @@ class FlaskAppTestCase(unittest.TestCase):
         self.assertTrue(server.tags.find_one(data) is not None)
 
         data = {
-            server.MATCH_TAG : "newt"
+            'MATCH_TAG' : "newt"
             }
 
         response = self.app.post('/searchtag', headers, data=json.dumps(data))
 
         data = json.loads(response.data)
         print data
-        self.assertIn("newtag", data[server.RESULTS])
+        self.assertIn("newtag", data['RESULTS'])
 
 
 

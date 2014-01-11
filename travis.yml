@@ -7,6 +7,5 @@ env:
 services: mongodb
 # command to install dependencies
 install: "pip install -r requirements.txt"
-# start mongodb
 # command to run tests
 script: nosetests

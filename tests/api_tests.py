@@ -12,6 +12,7 @@ class FlaskAppTestCase(unittest.TestCase):
         self.app = server.app.test_client()
         server.connect(os.environ['BOCK_MONGO_TEST_DB'])
         server.queue.remove({})
+        server.tags.remove({})
 
     def test_server_being_up(self):
         """ Test if server is up. """
@@ -22,7 +23,7 @@ class FlaskAppTestCase(unittest.TestCase):
         """ Test if client is correctly enqueued """
         data = {
             server.USER_ID : '1234567',
-            server.MATCH_TYPE : server.MATCH_BEER,
+            server.MATCH_TAG : "beer",
             server.TIME_LEFT : 7200
             }
 
@@ -44,7 +45,7 @@ class FlaskAppTestCase(unittest.TestCase):
         for idx in range(100):
             data = {
                 server.USER_ID : 'idx_'+str(idx),
-                server.MATCH_TYPE : server.MATCH_BEER,
+                server.MATCH_TAG : "beer",
                 server.TIME_LEFT : 7200
                 }
             users.append(data)
@@ -81,6 +82,34 @@ class FlaskAppTestCase(unittest.TestCase):
         """ If there are enough users who are close enough to each other, and they have different match types selected, the closest known meeting place should be chosen """
         # TODO
         pass
+
+    def test_add_unknown_match_tag(self):
+        """  If a tag is searched which does not exist yet, it should be added """
+        data = {
+            server.MATCH_TAG : "newtag"
+            }
+
+        headers = [('Content-Type', 'application/json')]
+
+        # should not be there initially
+        self.assertTrue(server.tags.find_one(data) is None)
+
+        response = self.app.post('/addtag', headers, data=json.dumps(data))
+
+        # should be there now
+        self.assertTrue(server.tags.find_one(data) is not None)
+
+        data = {
+            server.MATCH_TAG : "newt"
+            }
+
+        response = self.app.post('/searchtag', headers, data=json.dumps(data))
+
+        data = json.loads(response.data)
+        print data
+        self.assertIn("newtag", data[server.RESULTS])
+
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -12,7 +12,6 @@ class FlaskAppTestCase(unittest.TestCase):
         self.app = server.app.test_client()
         for env in os.environ:
             print env
-        server.connect(os.environ['BOCK_MONGO_TEST_DB'])
         server.queue.remove({})
         server.tags.remove({})
 

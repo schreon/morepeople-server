@@ -33,13 +33,12 @@ api = flask.ext.restful.Api(app)
 
 from pymongo import MongoClient
 mongoclient, db, queue, tags = None, None, None, None
-def connect(url):
-    global mongoclient, db, queue, tags
-    mongoclient = MongoClient(url)
+url = os.environ['BOCK_MONGO_TEST_DB']
+mongoclient = MongoClient(url)
 
-    db = mongoclient['matchmaking']
-    queue = db['queue']
-    tags = db['tags']
+db = mongoclient['matchmaking']
+queue = db['queue']
+tags = db['tags']
 
 @app.route("/")
 def get_index():

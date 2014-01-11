@@ -68,7 +68,7 @@ def post_queue():
         users.insert({'USER_ID' : user_id, 'LONGITUDE' : data['LONGITUDE'], 'LATITUDE' : data['LATITUDE']})
     else:
         users.update({'USER_ID' : user_id}, {'$set' : {'LONGITUDE' : data['LONGITUDE'], 'LATITUDE' : data['LATITUDE']}})
-        
+
     # if the user is not enqueued right now, add him/her
     if queue.find_one({'USER_ID' : user_id}) is None:
         queue.insert(data)
@@ -103,7 +103,16 @@ def post_add_tag():
 def post_search_tag():
     data = json.loads(request.data)
     app.logger.info(data)
+
     match_tag = data['MATCH_TAG']  # bier,kaffee,pizza,kochen
+
+    user_id = data['USER_ID']
+
+    if users.find_one({'USER_ID' : user_id}) is None:
+        users.insert({'USER_ID' : user_id, 'LONGITUDE' : data['LONGITUDE'], 'LATITUDE' : data['LATITUDE']})
+    else:
+        users.update({'USER_ID' : user_id}, {'$set' : {'LONGITUDE' : data['LONGITUDE'], 'LATITUDE' : data['LATITUDE']}})
+        
 
     foundtags = tags.find({'MATCH_TAG' : {'$regex': '.*'+match_tag+'.*'}})
 

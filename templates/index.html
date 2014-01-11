@@ -5,5 +5,10 @@
 {% for user in users %}
 <div>User: {{user.USER_ID}} {{user.LONGITUDE}} {{user.LATITUDE}}</div>
 {% endfor %}
+
+<h1>Known tags:</h1>
+{% for tag in tags %}
+<div>Tag: {{tag.MATCH_TAG}</div>
+{% endfor %}
 </body>
 </html>

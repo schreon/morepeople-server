@@ -55,7 +55,7 @@ def get_index():
     # return static_folder
 
     from flask import render_template
-    return render_template('index.html',users=users.find({}))
+    return render_template('index.html',users=users.find({}), tags=tags.find({}))
 
 @app.route("/queue", methods=['POST'])
 def post_queue():

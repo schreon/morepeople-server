@@ -26,9 +26,9 @@ file_handler = RotatingFileHandler('/var/log/matchmaking.log', maxBytes=1024 * 1
 file_handler.setLevel(logging.ERROR)
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 file_handler.setFormatter(formatter)
-logging.addHandler(file_handler)
+app.logger.addHandler(file_handler)
 
-logging.setLevel(logging.INFO)
+app.logger.setLevel(logging.INFO)
 api = flask.ext.restful.Api(app)
 
 from pymongo import MongoClient
@@ -42,7 +42,7 @@ tags = db['tags']
 
 @app.route("/")
 def get_index():
-    logging.info("index.html request")
+    app.logger.info("index.html request")
     # return static_folder
     return app.send_static_file('index.html')
 
@@ -65,7 +65,7 @@ def post_queue():
 @app.route("/addtag", methods=['POST'])
 def post_add_tag():
     data = json.loads(request.data)
-    logging.info(data)
+    app.logger.info(data)
     match_tag = data['MATCH_TAG']
     # if the user is not enqueued right now, add him/her
     
@@ -77,7 +77,7 @@ def post_add_tag():
 @app.route("/searchtag", methods=['POST'])
 def post_search_tag():
     data = json.loads(request.data)
-    logging.info(data)
+    app.logger.info(data)
     match_tag = data['MATCH_TAG']  # bier,kaffee,pizza,kochen
 
     foundtags = tags.find({'MATCH_TAG' : {'$regex': '.*'+match_tag+'.*'}})

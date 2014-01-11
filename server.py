@@ -41,14 +41,13 @@ queue = db['queue']
 tags = db['tags']
 users = db['users']
 
-try:
-    tags.insert({ 'MATCH_TAG' : "kaffee" })
-    tags.insert({ 'MATCH_TAG' : "bier" })
-    tags.insert({ 'MATCH_TAG' : "kochen" })
-    tags.insert({ 'MATCH_TAG' : "pizza" })
-    tags.insert({ 'MATCH_TAG' : "schweinereien" })
-except:
-    pass
+tags.remove({})
+tags.insert({ 'MATCH_TAG' : "kaffee" })
+tags.insert({ 'MATCH_TAG' : "bier" })
+tags.insert({ 'MATCH_TAG' : "kochen" })
+tags.insert({ 'MATCH_TAG' : "pizza" })
+tags.insert({ 'MATCH_TAG' : "schweinereien" })
+
 @app.route("/")
 def get_index():
     app.logger.info("index.html request")

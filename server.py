@@ -71,8 +71,7 @@ def get_index():
     app.logger.info("index.html request")
     # return static_folder
 
-    from flask import render_template
-    return send_static('index.html')
+    return app.send_static_file("index.html")
 
 @app.route("/status")
 def get_status():

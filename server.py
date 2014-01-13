@@ -139,9 +139,9 @@ def post_queue():
 
     # if the user is not enqueued right now, add him/her
     if queue.find_one({'USER_ID' : user_id}) is None:
-        queue.insert(data)
+        queue.insert({'USER_ID' : user_id,'TIME_LEFT' : time_left, 'MATCH_TAG' : match_tag, 'LOC' : data['LOC']})
     else:
-        queue.update({'USER_ID' : user_id}, {'$set' : {'TIME_LEFT' : time_left}})
+        queue.update({'USER_ID' : user_id}, {'$set' : {'TIME_LEFT' : time_left, 'MATCH_TAG' : match_tag, 'LOC' : data['LOC']}})
 
     queue.ensure_index([('LOC', pymongo.GEO2D)])
 
@@ -176,7 +176,7 @@ def post_add_tag():
 def post_search_tag():
     data = json.loads(request.data)
 
-    
+
     app.logger.info("/searchtag")
     app.logger.info(data)
 

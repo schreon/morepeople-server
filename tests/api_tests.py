@@ -24,6 +24,7 @@ class FlaskAppTestCase(unittest.TestCase):
         """ Test if client is correctly enqueued """
         data = {
             'USER_ID' : '1234567',
+            'USER_NAME' : 'server_test_user',
             'MATCH_TAG' : "beer",
             'TIME_LEFT' : 7200,
             'LONGITUDE' : 123,
@@ -50,6 +51,7 @@ class FlaskAppTestCase(unittest.TestCase):
                 'MATCH_TAG' : "beer",
                 'TIME_LEFT' : 7200,
                 'USER_ID' : 'idx_'+str(idx),
+                'USER_NAME' : 'server_test_user',
                 'LONGITUDE' : 123,
                 'LATITUDE' : 92
                 }
@@ -92,6 +94,7 @@ class FlaskAppTestCase(unittest.TestCase):
         """  If a tag is searched which does not exist yet, it should be added """
         data = {
             'MATCH_TAG' : "newtag",
+            'USER_NAME' : 'server_test_user',
             'USER_ID' : '123',
             'LONGITUDE' : 123,
             'LATITUDE' : 92
@@ -110,6 +113,7 @@ class FlaskAppTestCase(unittest.TestCase):
         data = {
             'MATCH_TAG' : "newt",
             'USER_ID' : '123',
+            'USER_NAME' : 'server_test_user',
             'LONGITUDE' : 123,
             'LATITUDE' : 92
             }

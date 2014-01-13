@@ -78,22 +78,13 @@ class FlaskAppTestCase(unittest.TestCase):
         """ test if the nearest users are actually found """
         # Generate multiple users
         users = []
-        for idx in range(5):
+        for idx in range(6):
             data = {
                 'MATCH_TAG' : "beer",
                 'TIME_LEFT' : 7200,
                 'USER_ID' : 'idx_near_'+str(idx),
-                'USER_NAME' : 'server_test_user',
+                'USER_NAME' : 'server_test_user'+str(idx),
                 'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
-                }
-            users.append(data)
-        for idx in range(5):
-            data = {
-                'MATCH_TAG' : "beer",
-                'TIME_LEFT' : 7200,
-                'USER_ID' : 'idx_far_'+str(idx),
-                'USER_NAME' : 'server_test_user',
-                'LOC': {'LONGITUDE' : 30.1, 'LATITUDE' : 100.0 }
                 }
             users.append(data)
 
@@ -108,15 +99,16 @@ class FlaskAppTestCase(unittest.TestCase):
             # send request
             response = self.app.post('/queue', headers, data=json.dumps(user))
 
-            # if i % 3 == 0:
-            #     # every third , there should be a match
-            #     nearest_queues = server.matches('idx_near_0')
-            #     self.assertEquals(nearest_queues.count(), 3)
+            data = json.loads(response.data)
 
-            #     # last added user should not be in queue anymore
-            #     self.assertTrue(server.queue.find_one(user) is None)
-            # else:
-            #     self.assertTrue(server.queue.find_one(user) is not None)
+            if i % 3 == 0:
+                # every third , there should be a match
+                self.assertEquals(data['STATUS'], 'MATCH_FOUND')
+                # last added user should not be in queue anymore
+                self.assertTrue(server.queue.find_one(user) is None)
+            else:
+                self.assertEquals(data['STATUS'], "WAIT")
+                self.assertTrue(server.queue.find_one(user) is not None)
             i += 1
 
         # retrieve nearest queues

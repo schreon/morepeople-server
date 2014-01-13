@@ -1,14 +1,30 @@
 <html>
-<head><title>2morepeople</title></head>
-<body>
-<h1>Known users:</h1>
-{% for user in users %}
-<div>User: {{user.USER_ID}} {{user.LONGITUDE}} {{user.LATITUDE}} {{user.USER_NAME}}</div>
-{% endfor %}
+<head>
+	<title>
+		2morepeople
+	</title>
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
 
-<h1>Known tags:</h1>
-{% for tag in tags %}
-<div>Tag: {{tag.MATCH_TAG}}</div>
-{% endfor %}
+	<!-- Optional theme -->
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css">
+
+</head>
+	<body>
+	<h1>Known users:</h1>
+	{% for user in users %}
+		<div>User: {{user.USER_ID}} {{user.LONGITUDE}} {{user.LATITUDE}} {{user.USER_NAME}}</div>
+	{% endfor %}
+
+	<h1>Known tags:</h1>
+	{% for tag in tags %}
+		<div>Tag: {{tag.MATCH_TAG}}</div>
+	{% endfor %}
+
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://code.jquery.com/jquery.js"></script>
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
 </body>
 </html>

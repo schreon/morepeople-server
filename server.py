@@ -105,7 +105,7 @@ def try_to_match_user(user_id):
         for qu in local_matches:
             queue.remove(qu)
             lobbies.insert(qu)
-        return {'STATUS':'MATCH_FOUND'} # new lobby object
+        return {'STATUS':'WAIT'} # new lobby object
     else:
         return {'STATUS':'WAIT'}
 

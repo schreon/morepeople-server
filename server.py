@@ -116,6 +116,8 @@ def post_queue():
     match_tag = data['MATCH_TAG']  # bier,kaffee,pizza,kochen
     time_left = data['TIME_LEFT']  
 
+    app.logger.info("/queue")
+    app.logger.info(data)
     # is the user in a lobby meanwhile? 
     lobby = lobbies.find_one({'USER_ID' : user_id})
     if lobby is not None:
@@ -151,6 +153,9 @@ def post_queue():
 def post_add_tag():
     data = json.loads(request.data)
     user_id = data['USER_ID']
+
+
+    app.logger.info("/addtag")
     app.logger.info(data)
 
     if users.find_one({'USER_ID' : user_id}) is None:
@@ -170,6 +175,9 @@ def post_add_tag():
 @app.route("/searchtag", methods=['POST'])
 def post_search_tag():
     data = json.loads(request.data)
+
+    
+    app.logger.info("/searchtag")
     app.logger.info(data)
 
     match_tag = data['MATCH_TAG']  # bier,kaffee,pizza,kochen

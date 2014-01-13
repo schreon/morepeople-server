@@ -17,6 +17,8 @@
 		    	<div class="row">
 					<div class="col-md-12">
 						<h1>Known users</h1>
+
+						<table>
 						<thead>
 							<tr>
 								<th>
@@ -33,14 +35,14 @@
 								</th>
 							</tr>
 						</thead>
-
-						<table>
+						<tbody>
 							<tr ng-repeat="user in data.users">
 								<td> {{user.USER_ID}} </td>
 								<td> {{user.USER_NAME}} </td>
 								<td> {{user.LOC.LONGITUDE}} </td>
 								<td> {{user.LOC.LATITUDE}} </td>
 							</tr>
+						</tobdy>
 						</table>
 					</div>
 				</div>
@@ -50,6 +52,7 @@
 		    	<div class="row">
 					<div class="col-md-12">
 						<h1>Known tags</h1>
+						<table>
 						<thead>
 							<tr>
 								<th>
@@ -58,19 +61,21 @@
 							</tr>
 						</thead>
 
-						<table>
+						<tbody>
 							<tr ng-repeat="tag in data.tags">
 								<td> {{tag.MATCH_TAG}} </td>
 							</tr>
-						</table>
+						</tbody>
+					</table>
 					</div>
 				</div>
 		    </tab>
 
 		    <tab heading="Queue">
 		    	<div class="row">
-					<div class="col-md-3">
+					<div class="col-md-12">
 						<h1>Queue</h1>
+						<table>
 						<thead>
 							<tr>
 								<th>
@@ -91,7 +96,7 @@
 							</tr>
 						</thead>
 
-						<table>
+						<tbody>
 							<tr ng-repeat="qu in data.queue">
 								<td> {{qu.USER_ID}} </td>
 								<td> {{qu.MATCH_TAG}} </td>
@@ -99,23 +104,24 @@
 								<td> {{qu.LOC.LONGITUDE}} </td>
 								<td> {{qu.LOC.LATITUDE}} </td>
 							</tr>
-						</table>
+						</tbody>
+					</table>
 					</div>
 			</tab>
 		    <tab heading="Lobbies">
-					<div class="col-md-3">
+					<div class="col-md-12">
 						<h1>Lobby</h1>
 						<div ng-repeat="lobby in data.lobbies">Tag: {{lobby.MATCH_TAG}}</div>
 					</div>
 			</tab>
 		    <tab heading="Running">
-					<div class="col-md-3">
+					<div class="col-md-12">
 						<h1>Runnning</h1>
 						<div ng-repeat="match in data.running_matches">Tag: {{match.MATCH_TAG}}</div>
 					</div>
 			</tab>
 		    <tab heading="Evaluations">
-					<div class="col-md-3">
+					<div class="col-md-12">
 						<h1>Evaluations</h1>
 						<div ng-repeat="evaluation in data.evaluations">Tag: {{evaluation.MATCH_TAG}}</div>
 					</div>

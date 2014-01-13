@@ -41,7 +41,10 @@ queue = db['queue']
 tags = db['tags']
 users = db['users']
 
+users.remove({})
+queue.remove({})
 tags.remove({})
+
 tags.insert({ 'MATCH_TAG' : "kaffee" })
 tags.insert({ 'MATCH_TAG' : "bier" })
 tags.insert({ 'MATCH_TAG' : "kochen" })

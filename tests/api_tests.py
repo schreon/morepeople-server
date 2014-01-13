@@ -24,6 +24,35 @@ class FlaskAppTestCase(unittest.TestCase):
         response = self.app.get('/')
         self.assertEqual(response.status_code, 200)
 
+    def test_access_status(self):
+        """ Test if status is returned """
+
+        # Generate multiple users
+        users = []
+        for idx in range(100):
+            data = {
+                'MATCH_TAG' : "beer",
+                'TIME_LEFT' : 7200,
+                'USER_ID' : 'idx_'+str(idx),
+                'USER_NAME' : 'server_test_user',
+                'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
+                }
+            users.append(data)
+
+        # Post enqueue requests to server
+        headers = [('Content-Type', 'application/json')]
+        for user in users:
+
+            # should not be there initially
+            self.assertTrue(server.queue.find_one(user) is None)
+
+            # send request
+            response = self.app.post('/queue', headers, data=json.dumps(user))
+
+        # get status
+        response = self.app.get('/status')
+        self.assertEqual(response.status_code, 200)
+
     def test_enqueue_user(self):
         """ Test if client is correctly enqueued """
         data = {

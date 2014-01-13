@@ -11,7 +11,6 @@ import StringIO
 
 import os
 import tempfile
-import json
 
 static_folder = os.path.join('public')
 
@@ -19,6 +18,16 @@ app = Flask("MatchmakingClient",
             static_folder=static_folder, static_url_path='')
 
 
+from json import JSONEncoder
+from bson.objectid import ObjectId
+
+class MongoEncoder(JSONEncoder):
+    def default(self, obj, **kwargs):
+        if isinstance(obj, ObjectId):
+            return str(obj)
+        else:            
+            return JSONEncoder.default(obj, **kwargs)
+app.json_encoder = MongoEncoder
 
 import logging
 from logging.handlers import RotatingFileHandler
@@ -48,6 +57,8 @@ evaluations = db['evaluations']
 users.remove({})
 queue.remove({})
 tags.remove({})
+lobbies.remove({})
+evaluations.remove({})
 
 tags.insert({ 'MATCH_TAG' : "kaffee" })
 tags.insert({ 'MATCH_TAG' : "bier" })
@@ -66,14 +77,13 @@ def get_index():
 @app.route("/status")
 def get_status():
     app.logger.info("status request")
-
     return flask.jsonify(dict(
-        users=users.find({}), 
-        tags=tags.find({}),
-        queue=queue.find({}), 
-        lobbies=lobbies.find({}), 
-        running_matches=running_matches.find({}), 
-        evaluations=evaluations.find({})
+        users=[user for user in users.find({})], 
+        tags=[tag for tag in tags.find({})],
+        queue=[qu for qu in queue.find({})], 
+        lobbies=[lobby for lobby in lobbies.find({})], 
+        running_matches=[match for match in running_matches.find({})], 
+        evaluations=[evaluation for evaluation in evaluations.find({})]
     ))
 
 def matches(user_id):   

@@ -10,56 +10,66 @@
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css">
 
 </head>
-	<body>
+	<body ng-controller="TabsDemoCtrl">
 	<div class="container">
-		<div class="row">
-			<div class="col-md-2">
-				<h1>Known users:</h1>
-				{% for user in users %}
-					<div>User: {{user.USER_ID}} {{user.LONGITUDE}} {{user.LATITUDE}} {{user.USER_NAME}}</div>
-				{% endfor %}
-			</div>
+		<tabset>
+		    <tab heading="Users">
+		    	<div class="row">
+					<div class="col-md-2">
+						<h1>Known users:</h1>
+						{% for user in users %}
+							<div>User: {{user.USER_ID}} {{user.LONGITUDE}} {{user.LATITUDE}} {{user.USER_NAME}}</div>
+						{% endfor %}
+					</div>
+				</div>
+		    </tab>
 
-			<div class="col-md-2">
-				<h1>Known tags:</h1>
-				{% for tag in tags %}
-					<div>Tag: {{tag.MATCH_TAG}}</div>
-				{% endfor %}
-			</div>
+		    <tab heading="Tags">
+		    	<div class="row">
+					<div class="col-md-2">
+						<h1>Known tags:</h1>
+						{% for tag in tags %}
+							<div>Tag: {{tag.MATCH_TAG}}</div>
+						{% endfor %}
+					</div>
+				</div>
+		    </tab>
 
-			<div class="col-md-2">
-				<h1>Queue:</h1>
-				{% for qu in queue %}
-					<div>ID: {{qu.USER_ID}} Tag: {{tag.MATCH_TAG}}</div>
-				{% endfor %}
-			</div>
+		    <tab heading="Live">
+		    	<div class="row">
+					<div class="col-md-2">
+						<h1>Queue:</h1>
+						{% for qu in queue %}
+							<div>ID: {{qu.USER_ID}} Tag: {{tag.MATCH_TAG}}</div>
+						{% endfor %}
+					</div>
 
-			<div class="col-md-2">
-				<h1>Lobby:</h1>
-				{% for lobby in lobbies %}
-					<div>Tag: {{tag.MATCH_TAG}}</div>
-				{% endfor %}
-			</div>
+					<div class="col-md-2">
+						<h1>Lobby:</h1>
+						{% for lobby in lobbies %}
+							<div>Tag: {{tag.MATCH_TAG}}</div>
+						{% endfor %}
+					</div>
 
-			<div class="col-md-2">
-				<h1>Runnning:</h1>
-				{% for match in running_matches %}
-					<div>Tag: {{tag.MATCH_TAG}}</div>
-				{% endfor %}
-			</div>
+					<div class="col-md-2">
+						<h1>Runnning:</h1>
+						{% for match in running_matches %}
+							<div>Tag: {{tag.MATCH_TAG}}</div>
+						{% endfor %}
+					</div>
 
-			<div class="col-md-2">
-				<h1>Evaluations:</h1>
-				{% for evaluation in evaluations %}
-					<div>Tag: {{tag.MATCH_TAG}}</div>
-				{% endfor %}
-			</div>
-		</div>
+					<div class="col-md-2">
+						<h1>Evaluations:</h1>
+						{% for evaluation in evaluations %}
+							<div>Tag: {{tag.MATCH_TAG}}</div>
+						{% endfor %}
+					</div>
+				</div>
+		    </tab>
+		 </tabset>
 	</div> 
 
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="https://code.jquery.com/jquery.js"></script>
-	<!-- Latest compiled and minified JavaScript -->
-	<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.8/angular.min.js"></script>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.9.0/ui-bootstrap.min.js"></script>
 </body>
 </html>

@@ -17,7 +17,31 @@
 		    	<div class="row">
 					<div class="col-md-12">
 						<h1>Known users</h1>
-						<div ng-repeat="user in data.users">User: {{user.USER_ID}} {{user.LONGITUDE}} {{user.LATITUDE}} {{user.USER_NAME}}</div>
+						<thead>
+							<tr>
+								<th>
+									USER_ID
+								</th>
+								<th>
+									USER_NAME
+								</th>
+								<th>
+									LONGITUDE
+								</th>
+								<th>
+									LATITUDE
+								</th>
+							</tr>
+						</thead>
+
+						<table>
+							<tr ng-repeat="user in data.users">
+								<td> {{user.USER_ID}} </td>
+								<td> {{user.USER_NAME}} </td>
+								<td> {{user.LOC.LONGITUDE}} </td>
+								<td> {{user.LOC.LATITUDE}} </td>
+							</tr>
+						</table>
 					</div>
 				</div>
 		    </tab>
@@ -26,29 +50,71 @@
 		    	<div class="row">
 					<div class="col-md-12">
 						<h1>Known tags</h1>
-						<div ng-repeat="tag in data.tags">Tag: {{tag.MATCH_TAG}}</div>
+						<thead>
+							<tr>
+								<th>
+									MATCH_TAG
+								</th>
+							</tr>
+						</thead>
+
+						<table>
+							<tr ng-repeat="tag in data.tags">
+								<td> {{tag.MATCH_TAG}} </td>
+							</tr>
+						</table>
 					</div>
 				</div>
 		    </tab>
 
-		    <tab heading="Live">
+		    <tab heading="Queue">
 		    	<div class="row">
 					<div class="col-md-3">
 						<h1>Queue</h1>
-						<div ng-repeat="qu in data.queue">ID: {{qu.USER_ID}} Tag: {{qu.MATCH_TAG}} Time left: {{qu.TIME_LEFT}}</div>
-					</div>
+						<thead>
+							<tr>
+								<th>
+									USER_ID
+								</th>
+								<th>
+									MATCH_TAG
+								</th>
+								<th>
+									TIME_LEFT
+								</th>
+								<th>
+									LONGITUDE
+								</th>
+								<th>
+									LATITUDE
+								</th>
+							</tr>
+						</thead>
 
+						<table>
+							<tr ng-repeat="qu in data.queue">
+								<td> {{qu.USER_ID}} </td>
+								<td> {{qu.MATCH_TAG}} </td>
+								<td> {{qu.TIME_LEFT}} </td>
+								<td> {{qu.LOC.LONGITUDE}} </td>
+								<td> {{qu.LOC.LATITUDE}} </td>
+							</tr>
+						</table>
+					</div>
+			</tab>
+		    <tab heading="Lobbies">
 					<div class="col-md-3">
 						<h1>Lobby</h1>
 						<div ng-repeat="lobby in data.lobbies">Tag: {{lobby.MATCH_TAG}}</div>
 					</div>
-
-
+			</tab>
+		    <tab heading="Running">
 					<div class="col-md-3">
 						<h1>Runnning</h1>
 						<div ng-repeat="match in data.running_matches">Tag: {{match.MATCH_TAG}}</div>
 					</div>
-
+			</tab>
+		    <tab heading="Evaluations">
 					<div class="col-md-3">
 						<h1>Evaluations</h1>
 						<div ng-repeat="evaluation in data.evaluations">Tag: {{evaluation.MATCH_TAG}}</div>

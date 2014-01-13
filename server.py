@@ -38,9 +38,11 @@ url = os.environ['BOCK_MONGO_TEST_DB']
 mongoclient = MongoClient(url)
 
 db = mongoclient['matchmaking']
-queue = db['queue']
 tags = db['tags']
 users = db['users']
+queue = db['queue']
+lobbies = db['lobbies']
+running_matches = db['running_matches']
 
 users.remove({})
 queue.remove({})
@@ -60,25 +62,28 @@ def get_index():
     from flask import render_template
     return render_template('index.html',users=users.find({}), tags=tags.find({}))
 
-def nearest_queues(user_id):   
+def matches(user_id):   
     # user's queue 
-    qu = queue.find_one({'USER_ID' : user_id})
+    res = queue.find_one({'USER_ID' : user_id})
 
     return queue.find( {
         "LOC" : {
-         "$maxDistance" : 1000.0 / 111.12,
-         "$near" : [float(qu['LOC']['LONGITUDE']), float(qu['LOC']['LATITUDE'])]
-    } } )
-
-
-
+         "$maxDistance" : 1000.0 / 111.12, # 1km radius
+         "$near" : [float(res['LOC']['LONGITUDE']), float(res['LOC']['LATITUDE'])]
+        },
+        "MATCH_TAG" : res["MATCH_TAG"]
+    } )
 
 def try_to_match_user(user_id):
-    # get the users queue entry
-    qu = queue.find_one({'USER_ID' : user_id})
-
     # find the nearest other queues within 1 km
-
+    local_matches = matches(user_id)
+    if (local_matches.count() >= 3):
+        # remove them
+        for qu in local_matches:
+            queue.remove(qu)
+        return {'STATUS':'MATCH_FOUND'}
+    else:
+        return {'STATUS':'WAIT'}
 
 @app.route("/queue", methods=['POST'])
 def post_queue():
@@ -110,11 +115,7 @@ def post_queue():
     queue.ensure_index([('LOC', pymongo.GEO2D)])
 
     #match_result = try_to_match_user(user_id)
-    match_result = {'nothing':'nothing'}
-    if match_result is None:
-        return flask.jsonify(match_result)
-    else:
-        return flask.jsonify(match_result)
+    return flask.jsonify( try_to_match_user(user_id))
 
 
 @app.route("/addtag", methods=['POST'])

@@ -51,7 +51,7 @@ class FlaskAppTestCase(unittest.TestCase):
         users = []
         for idx in range(100):
             data = {
-                'MATCH_TAG' : "beer",
+                'MATCH_TAG' : "beer"+str(idx),
                 'TIME_LEFT' : 7200,
                 'USER_ID' : 'idx_'+str(idx),
                 'USER_NAME' : 'server_test_user',
@@ -71,6 +71,8 @@ class FlaskAppTestCase(unittest.TestCase):
 
             # should be there now
             self.assertTrue(server.queue.find_one(user) is not None)
+
+        print "finished enqueue multiple users"
 
     def test_nearest_users(self):
         """ test if the nearest users are actually found """
@@ -97,6 +99,7 @@ class FlaskAppTestCase(unittest.TestCase):
 
         # Post enqueue requests to server
         headers = [('Content-Type', 'application/json')]
+        i = 1
         for user in users:
 
             # should not be there initially
@@ -105,15 +108,19 @@ class FlaskAppTestCase(unittest.TestCase):
             # send request
             response = self.app.post('/queue', headers, data=json.dumps(user))
 
-            # should be there now
-            self.assertTrue(server.queue.find_one(user) is not None)
+            # if i % 3 == 0:
+            #     # every third , there should be a match
+            #     nearest_queues = server.matches('idx_near_0')
+            #     self.assertEquals(nearest_queues.count(), 3)
+
+            #     # last added user should not be in queue anymore
+            #     self.assertTrue(server.queue.find_one(user) is None)
+            # else:
+            #     self.assertTrue(server.queue.find_one(user) is not None)
+            i += 1
 
         # retrieve nearest queues
-        nearest_queues = server.nearest_queues('idx_near_0')
 
-        print "_____ NEAREST QUEUES ____"
-        for x in nearest_queues:
-            print x
 
     def test_try_matching(self):
         """ If there are enough users who are close enough to each other and who have the same match type, a match should take place and they should be removed from the queue """
@@ -125,34 +132,31 @@ class FlaskAppTestCase(unittest.TestCase):
                 'MATCH_TAG' : "beer",
                 'TIME_LEFT' : 7200,
                 'USER_ID' : 'idx_'+str(idx),
-                'USER_NAME' : 'server_test_user',
+                'USER_NAME' : 'server_test_user'+str(idx),
                 'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
                 }
             users.append(data)
 
-        # # Post enqueue requests to server
-        # usr_nr = 1
-        # headers = [('Content-Type', 'application/json')]
-        # for user in users:
+        # Post enqueue requests to server
+        usr_nr = 1
+        headers = [('Content-Type', 'application/json')]
+        for user in users:
 
-        #     # should not be there initially
-        #     self.assertTrue(server.queue.find_one(user) is None)
+            # should not be there initially
+            self.assertTrue(server.queue.find_one(user) is None)
 
-        #     # send request
-        #     response = self.app.post('/queue', headers, data=json.dumps(user))
-
-        #     # should be there now
-        #     self.assertTrue(server.queue.find_one(user) is not None)
+            # send request
+            response = self.app.post('/queue', headers, data=json.dumps(user))
 
 
-        #     data = json.loads(response.data)
-        #     # every 3rd user should get a match
-        #     if usr_nr % 3 == 0:
-        #         self.assertTrue(data['STATUS']['MATCH_FOUND'])
-        #     else:
-        #         # the others not
-        #         self.assertTrue(data['STATUS']['WAIT'])
-        #     usr_nr += 1
+            data = json.loads(response.data)
+            # every 3rd user should instantly get a match
+            if usr_nr % 3 == 0:
+                self.assertEquals(data['STATUS'], 'MATCH_FOUND')
+            else:
+                # the others not
+                self.assertEquals(data['STATUS'], 'WAIT')
+            usr_nr += 1
 
 
     def test_different_matchtypes_no_matching(self):

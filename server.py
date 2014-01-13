@@ -31,6 +31,7 @@ app.logger.addHandler(file_handler)
 app.logger.setLevel(logging.INFO)
 api = flask.ext.restful.Api(app)
 
+import pymongo
 from pymongo import MongoClient
 mongoclient, db, queue, tags = None, None, None, None
 url = os.environ['BOCK_MONGO_TEST_DB']
@@ -59,6 +60,26 @@ def get_index():
     from flask import render_template
     return render_template('index.html',users=users.find({}), tags=tags.find({}))
 
+def nearest_queues(user_id):   
+    # user's queue 
+    qu = queue.find_one({'USER_ID' : user_id})
+
+    return queue.find( {
+        "LOC" : {
+         "$maxDistance" : 1000.0 / 111.12,
+         "$near" : [float(qu['LOC']['LONGITUDE']), float(qu['LOC']['LATITUDE'])]
+    } } )
+
+
+
+
+def try_to_match_user(user_id):
+    # get the users queue entry
+    qu = queue.find_one({'USER_ID' : user_id})
+
+    # find the nearest other queues within 1 km
+
+
 @app.route("/queue", methods=['POST'])
 def post_queue():
     data = json.loads(request.data)
@@ -67,9 +88,18 @@ def post_queue():
     time_left = data['TIME_LEFT']  
 
     if users.find_one({'USER_ID' : user_id}) is None:
-        users.insert({'USER_ID' : user_id, 'LONGITUDE' : data['LONGITUDE'], 'LATITUDE' : data['LATITUDE'], 'USER_NAME' : data['USER_NAME']})
+        users.insert({
+            'USER_ID' : user_id,
+            'LOC' : data['LOC'],
+            'USER_NAME' : data['USER_NAME']
+            })
     else:
-        users.update({'USER_ID' : user_id}, {'$set' : {'LONGITUDE' : data['LONGITUDE'], 'LATITUDE' : data['LATITUDE'], 'USER_NAME' : data['USER_NAME']}})
+        users.update({
+            'USER_ID' : user_id}, {
+            '$set' : {
+                'LOC' : data['LOC'],
+                'USER_NAME' : data['USER_NAME']
+            }})
 
     # if the user is not enqueued right now, add him/her
     if queue.find_one({'USER_ID' : user_id}) is None:
@@ -77,8 +107,14 @@ def post_queue():
     else:
         queue.update({'USER_ID' : user_id}, {'$set' : {'TIME_LEFT' : time_left}})
 
-    # TODO: proper queue handling
-    return flask.jsonify({'MATCH_ID': 'test_id_1234'})
+    queue.ensure_index([('LOC', pymongo.GEO2D)])
+
+    #match_result = try_to_match_user(user_id)
+    match_result = {'nothing':'nothing'}
+    if match_result is None:
+        return flask.jsonify(match_result)
+    else:
+        return flask.jsonify(match_result)
 
 
 @app.route("/addtag", methods=['POST'])

@@ -10,10 +10,14 @@ class FlaskAppTestCase(unittest.TestCase):
     def setUpClass(self):
         # chooses testing config, i.e. in-memory db:
         self.app = server.app.test_client()
-        for env in os.environ:
-            print env
         server.queue.remove({})
         server.tags.remove({})
+        server.users.remove({})
+
+    def setUp(self):
+        server.queue.remove({})
+        server.tags.remove({})
+        server.users.remove({})
 
     def test_server_being_up(self):
         """ Test if server is up. """
@@ -27,8 +31,7 @@ class FlaskAppTestCase(unittest.TestCase):
             'USER_NAME' : 'server_test_user',
             'MATCH_TAG' : "beer",
             'TIME_LEFT' : 7200,
-            'LONGITUDE' : 123,
-            'LATITUDE' : 92
+            'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
             }
 
         headers = [('Content-Type', 'application/json')]
@@ -52,8 +55,7 @@ class FlaskAppTestCase(unittest.TestCase):
                 'TIME_LEFT' : 7200,
                 'USER_ID' : 'idx_'+str(idx),
                 'USER_NAME' : 'server_test_user',
-                'LONGITUDE' : 123,
-                'LATITUDE' : 92
+                'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
                 }
             users.append(data)
 
@@ -70,10 +72,88 @@ class FlaskAppTestCase(unittest.TestCase):
             # should be there now
             self.assertTrue(server.queue.find_one(user) is not None)
 
+    def test_nearest_users(self):
+        """ test if the nearest users are actually found """
+        # Generate multiple users
+        users = []
+        for idx in range(5):
+            data = {
+                'MATCH_TAG' : "beer",
+                'TIME_LEFT' : 7200,
+                'USER_ID' : 'idx_near_'+str(idx),
+                'USER_NAME' : 'server_test_user',
+                'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
+                }
+            users.append(data)
+        for idx in range(5):
+            data = {
+                'MATCH_TAG' : "beer",
+                'TIME_LEFT' : 7200,
+                'USER_ID' : 'idx_far_'+str(idx),
+                'USER_NAME' : 'server_test_user',
+                'LOC': {'LONGITUDE' : 30.1, 'LATITUDE' : 100.0 }
+                }
+            users.append(data)
+
+        # Post enqueue requests to server
+        headers = [('Content-Type', 'application/json')]
+        for user in users:
+
+            # should not be there initially
+            self.assertTrue(server.queue.find_one(user) is None)
+
+            # send request
+            response = self.app.post('/queue', headers, data=json.dumps(user))
+
+            # should be there now
+            self.assertTrue(server.queue.find_one(user) is not None)
+
+        # retrieve nearest queues
+        nearest_queues = server.nearest_queues('idx_near_0')
+
+        print "_____ NEAREST QUEUES ____"
+        for x in nearest_queues:
+            print x
+
     def test_try_matching(self):
         """ If there are enough users who are close enough to each other and who have the same match type, a match should take place and they should be removed from the queue """
-        # TODO
-        pass
+        # Generate multiple users
+        users = []
+        results = []
+        for idx in range(5):
+            data = {
+                'MATCH_TAG' : "beer",
+                'TIME_LEFT' : 7200,
+                'USER_ID' : 'idx_'+str(idx),
+                'USER_NAME' : 'server_test_user',
+                'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
+                }
+            users.append(data)
+
+        # # Post enqueue requests to server
+        # usr_nr = 1
+        # headers = [('Content-Type', 'application/json')]
+        # for user in users:
+
+        #     # should not be there initially
+        #     self.assertTrue(server.queue.find_one(user) is None)
+
+        #     # send request
+        #     response = self.app.post('/queue', headers, data=json.dumps(user))
+
+        #     # should be there now
+        #     self.assertTrue(server.queue.find_one(user) is not None)
+
+
+        #     data = json.loads(response.data)
+        #     # every 3rd user should get a match
+        #     if usr_nr % 3 == 0:
+        #         self.assertTrue(data['STATUS']['MATCH_FOUND'])
+        #     else:
+        #         # the others not
+        #         self.assertTrue(data['STATUS']['WAIT'])
+        #     usr_nr += 1
+
 
     def test_different_matchtypes_no_matching(self):
         """ If there are enough users who are close enough to each other, but they have different match types selected, nothing should happen """
@@ -121,7 +201,6 @@ class FlaskAppTestCase(unittest.TestCase):
         response = self.app.post('/searchtag', headers, data=json.dumps(data))
 
         data = json.loads(response.data)
-        print data
         self.assertIn("newtag", data['RESULTS'])
 
 

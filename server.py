@@ -154,9 +154,9 @@ def post_add_tag():
     app.logger.info(data)
 
     if users.find_one({'USER_ID' : user_id}) is None:
-        users.insert({'USER_ID' : user_id, 'LONGITUDE' : data['LONGITUDE'], 'LATITUDE' : data['LATITUDE'], 'USER_NAME' : data['USER_NAME']})
+        users.insert({'USER_ID' : user_id, 'LOC' : data['LOC'], 'USER_NAME' : data['USER_NAME']})
     else:
-        users.update({'USER_ID' : user_id}, {'$set' : {'LONGITUDE' : data['LONGITUDE'], 'LATITUDE' : data['LATITUDE'], 'USER_NAME' : data['USER_NAME']}})
+        users.update({'USER_ID' : user_id}, {'$set' : {'LOC' : data['LOC'], 'USER_NAME' : data['USER_NAME']}})
         
 
     match_tag = data['MATCH_TAG']
@@ -180,9 +180,9 @@ def post_search_tag():
         data['USER_NAME'] = "server got no username!"
 
     if users.find_one({'USER_ID' : user_id}) is None:
-        users.insert({'USER_ID' : user_id, 'LONGITUDE' : data['LONGITUDE'], 'LATITUDE' : data['LATITUDE'], 'USER_NAME' : data['USER_NAME']})
+        users.insert({'USER_ID' : user_id, 'LOC' : data['LOC'], 'USER_NAME' : data['USER_NAME']})
     else:
-        users.update({'USER_ID' : user_id}, {'$set' : {'LONGITUDE' : data['LONGITUDE'], 'LATITUDE' : data['LATITUDE'], 'USER_NAME' : data['USER_NAME']}})
+        users.update({'USER_ID' : user_id}, {'$set' : {'LOC' : data['LOC'], 'USER_NAME' : data['USER_NAME']}})
         
 
     foundtags = tags.find({'MATCH_TAG' : {'$regex': '.*'+match_tag+'.*'}})

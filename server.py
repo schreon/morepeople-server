@@ -43,6 +43,7 @@ users = db['users']
 queue = db['queue']
 lobbies = db['lobbies']
 running_matches = db['running_matches']
+evaluations = db['evaluations']
 
 users.remove({})
 queue.remove({})

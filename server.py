@@ -105,7 +105,7 @@ def try_to_match_user(user_id):
         for qu in local_matches:
             queue.remove(qu)
             lobbies.insert(qu)
-        return {'STATUS':'WAIT'} # new lobby object
+        return {'STATUS':'MATCH_FOUND'} # new lobby object
     else:
         return {'STATUS':'WAIT'}
 
@@ -117,7 +117,7 @@ def post_queue():
     time_left = data['TIME_LEFT']  
 
     # is the user in a lobby meanwhile? 
-    lobby = users.find_one({'USER_ID' : user_id})
+    lobby = lobbies.find_one({'USER_ID' : user_id})
     if lobby is not None:
         return flask.jsonify({'STATUS':'MATCH_FOUND'})
 

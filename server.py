@@ -72,7 +72,7 @@ def get_index():
     # return static_folder
 
     from flask import render_template
-    return render_template('index.html',users=users.find({}), tags=tags.find({}))
+    return send_static('index.html')
 
 @app.route("/status")
 def get_status():

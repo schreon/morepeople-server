@@ -10,16 +10,14 @@
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css">
 
 </head>
-	<body ng-app="matchmakingserverstatus">
+	<body ng-app="matchmakingserverstatus" ng-controller="StatusConroller">
 	<div class="container">
 		<tabset>
 		    <tab heading="Users">
 		    	<div class="row">
 					<div class="col-md-12">
 						<h1>Known users</h1>
-						{% for user in users %}
-							<div>User: {{user.USER_ID}} {{user.LONGITUDE}} {{user.LATITUDE}} {{user.USER_NAME}}</div>
-						{% endfor %}
+						<div ng-repeat="user in users">User: {{user.USER_ID}} {{user.LONGITUDE}} {{user.LATITUDE}} {{user.USER_NAME}}</div>
 					</div>
 				</div>
 		    </tab>
@@ -28,9 +26,7 @@
 		    	<div class="row">
 					<div class="col-md-12">
 						<h1>Known tags</h1>
-						{% for tag in tags %}
-							<div>Tag: {{tag.MATCH_TAG}}</div>
-						{% endfor %}
+						<div ng-repeat="tag in tags">Tag: {{tag.MATCH_TAG}}</div>
 					</div>
 				</div>
 		    </tab>
@@ -39,30 +35,23 @@
 		    	<div class="row">
 					<div class="col-md-3">
 						<h1>Queue</h1>
-						{% for qu in queue %}
-							<div>ID: {{qu.USER_ID}} Tag: {{tag.MATCH_TAG}}</div>
-						{% endfor %}
+						<div ng-repeat="qu in queues">ID: {{qu.USER_ID}} Tag: {{tag.MATCH_TAG}}</div>
 					</div>
 
 					<div class="col-md-3">
 						<h1>Lobby</h1>
-						{% for lobby in lobbies %}
-							<div>Tag: {{tag.MATCH_TAG}}</div>
-						{% endfor %}
+						<div ng-repeat="lobby in lobbies">Tag: {{lobby.MATCH_TAG}}</div>
 					</div>
+
 
 					<div class="col-md-3">
 						<h1>Runnning</h1>
-						{% for match in running_matches %}
-							<div>Tag: {{tag.MATCH_TAG}}</div>
-						{% endfor %}
+						<div ng-repeat="match in running_matches">Tag: {{match.MATCH_TAG}}</div>
 					</div>
 
 					<div class="col-md-3">
 						<h1>Evaluations</h1>
-						{% for evaluation in evaluations %}
-							<div>Tag: {{tag.MATCH_TAG}}</div>
-						{% endfor %}
+						<div ng-repeat="evaluation in evaluations">Tag: {{evaluation.MATCH_TAG}}</div>
 					</div>
 				</div>
 		    </tab>

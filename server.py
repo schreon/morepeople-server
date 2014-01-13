@@ -63,6 +63,19 @@ def get_index():
     from flask import render_template
     return render_template('index.html',users=users.find({}), tags=tags.find({}))
 
+@app.route("/status")
+def get_status():
+    app.logger.info("status request")
+
+    return flask.jsonify(dict(
+        users=users.find({}), 
+        tags=tags.find({}),
+        queue=queue.find({}), 
+        lobbies=lobbies.find({}), 
+        running_matches=running_matches.find({}), 
+        evaluations=evaluations.find({})
+    ))
+
 def matches(user_id):   
     # user's queue 
     res = queue.find_one({'USER_ID' : user_id})
@@ -82,7 +95,8 @@ def try_to_match_user(user_id):
         # remove them
         for qu in local_matches:
             queue.remove(qu)
-        return {'STATUS':'MATCH_FOUND'}
+            lobbies.insert(qu)
+        return {'STATUS':'MATCH_FOUND'} # new lobby object
     else:
         return {'STATUS':'WAIT'}
 
@@ -92,6 +106,11 @@ def post_queue():
     user_id = data['USER_ID']
     match_tag = data['MATCH_TAG']  # bier,kaffee,pizza,kochen
     time_left = data['TIME_LEFT']  
+
+    # is the user in a lobby meanwhile? 
+    lobby = users.find_one({'USER_ID' : user_id})
+    if lobby is not None:
+        return flask.jsonify({'STATUS':'MATCH_FOUND'})
 
     if users.find_one({'USER_ID' : user_id}) is None:
         users.insert({

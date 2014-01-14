@@ -107,26 +107,30 @@
 						</tbody>
 					</table>
 					</div>
+				</div>
 			</tab>
+
 		    <tab heading="Lobbies">
-					<div class="col-md-12">
-						<h1>Lobby</h1>
-						<div ng-repeat="lobby in data.lobbies">Tag: {{lobby.MATCH_TAG}}</div>
-					</div>
+				<div class="col-md-12">
+					<h1>Lobby</h1>
+					<div ng-repeat="lobby in data.lobbies">Tag: {{lobby.MATCH_TAG}}</div>
+				</div>
 			</tab>
+
 		    <tab heading="Running">
-					<div class="col-md-12">
-						<h1>Runnning</h1>
-						<div ng-repeat="match in data.running_matches">Tag: {{match.MATCH_TAG}}</div>
-					</div>
+				<div class="col-md-12">
+					<h1>Runnning</h1>
+					<div ng-repeat="match in data.running_matches">Tag: {{match.MATCH_TAG}}</div>
+				</div>
 			</tab>
+
 		    <tab heading="Evaluations">
-					<div class="col-md-12">
-						<h1>Evaluations</h1>
-						<div ng-repeat="evaluation in data.evaluations">Tag: {{evaluation.MATCH_TAG}}</div>
-					</div>
+				<div class="col-md-12">
+					<h1>Evaluations</h1>
+					<div ng-repeat="evaluation in data.evaluations">Tag: {{evaluation.MATCH_TAG}}</div>
 				</div>
 		    </tab>
+
 		 </tabset>
 	</div> 
 

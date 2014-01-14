@@ -10,6 +10,9 @@ angular.module('statusService', ['ngResource']).
     });
 
 function StatusConroller($scope, $timeout, Data) {
+
+	$scope.mockUsers = [{'USER_ID':'test_user_01'}];
+
 	$scope.data = [];
 	$scope.buffer = [];
     (function tick() {

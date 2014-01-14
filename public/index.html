@@ -12,6 +12,36 @@
 </head>
 	<body ng-controller="StatusConroller">
 	<div class="container"> 
+		<div class="row">
+			<div class="col-md-4" ng-repeat="mockUser in mockUsers">
+					<table class="table">
+						<thead>
+							<tr>
+								<th>
+									USER_ID
+								</th>
+								<th>
+									USER_NAME
+								</th>
+								<th>
+									LONGITUDE
+								</th>
+								<th>
+									LATITUDE
+								</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td><input type="text" ng-model="mockUser.USER_ID"></input></td>
+								<td><input type="text" ng-model="mockUser.USER_NAME"></input></td>
+								<td><input type="text" ng-model="mockUser.LOC.LONGITUDE"></input></td>
+								<td><input type="text" ng-model="mockUser.LOC.LATITUDE"></input></td>
+							</tr>
+						</tobdy>
+					</table>
+			</div>
+		</div>
 		<tabset>
 		    <tab heading="Users">
 		    	<div class="row">

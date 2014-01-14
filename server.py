@@ -219,6 +219,7 @@ def accept():
     # is the user in a lobby? 
     lobby = lobbies.find_one({'USER_ID' : user_id})
     if lobby is not None:
+        match_id = lobby['MATCH_ID']
         group = lobbies.find({'MATCH_ID' : match_id})
         others = []
         for person in group:
@@ -239,7 +240,6 @@ def accept():
         })
 
         # check if everone has accepted
-        match_id = lobby['MATCH_ID']
         group = lobbies.find({'MATCH_ID' : match_id})
         accepted = True
         user_ids = []

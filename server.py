@@ -141,8 +141,10 @@ def post_queue():
             'USER_NAME' : data['USER_NAME'],
             'STATUS' : 'QUEUED'
             }
+        app.logger.info("Inserting user" + user['USER_NAME'])
         users.insert(user)
     else:
+        app.logger.info("Updating user" + user['USER_NAME'])
         # Update 
         users.update({
             'USER_ID' : user_id}, {

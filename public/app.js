@@ -18,8 +18,8 @@ function StatusConroller($scope, $timeout, $http, Data) {
 			'USER_ID':'test_user_'+i,
 			'USER_NAME':'Test User '+i,
 			'LOC':{
-				'LONGITUDE':10+0.1*Math.random(),
-				'LATITUDE':10+0.1*Math.random(),
+				'LONGITUDE':9.1+0.1*Math.random(),
+				'LATITUDE':48.7+0.1*Math.random(),
 			},
 			'MATCH_TAG':'bier',
 			'TIME_LEFT':1000

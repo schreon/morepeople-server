@@ -144,9 +144,6 @@ def post_queue():
         app.logger.info("Inserting user" + user['USER_NAME'])
         users.insert(user)
     else:
-        app.logger.info("Found user" + user['USER_NAME'])
-        app.loger.info(user)
-        app.logger.info("Updating user" + user['USER_NAME'])
         # Update 
         users.update({
             'USER_ID' : user_id}, {
@@ -159,13 +156,21 @@ def post_queue():
     if user['STATUS'] == 'LOBBY':
         return flask.jsonify({'STATUS':'MATCH_FOUND'})
 
+    # if the user was offline, he is now online
+    if user['STATUS'] == 'OFFLINE:'
+        users.update({
+            'USER_ID' : user_id
+            }, {'$set' : {'STATUS':'QUEUED'}})
+
+    # if he was offline or queued, create or update the queue
     if user['STATUS'] in ['OFFLINE', 'QUEUED']:
         # update queue
         if queue.find_one({'USER_ID' : user_id}) is None:
             queue.insert({'USER_ID' : user_id,'TIME_LEFT' : time_left, 'MATCH_TAG' : match_tag, 'LOC' : data['LOC']})
         else:
             queue.update({'USER_ID' : user_id}, {'$set' : {'TIME_LEFT' : time_left, 'MATCH_TAG' : match_tag, 'LOC' : data['LOC']}})
-
+    
+        # update the geolocation index
         queue.ensure_index([('LOC', pymongo.GEO2D)])
 
         # try to match

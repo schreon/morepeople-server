@@ -12,13 +12,49 @@
 </head>
 	<body ng-controller="StatusConroller">
 	<div class="container"> 
-		<tabset>			
+		<tabset>
+		   	<tab heading="Mock Users">
+		   		<div class="row">
+		   			<div class="col-md-12">
+
+						<h1>Mock users</h1>
+			   			<table class="table table-hover table-striped">
+							<thead>
+								<tr>
+									<th class="col-sm-2">USER_ID</th>
+									<th class="col-sm-2">USER_NAME</th>
+									<th class="col-sm-1">LONGITUDE</th>
+									<th class="col-sm-1">LATITUDE</th>
+									<th class="col-sm-1">MATCH_TAG</th>
+									<th class="col-sm-5">FUNCTIONS</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr ng-repeat="mockUser in mockUsers">
+									<td><input class="form-control" type="text" ng-model="mockUser.USER_ID"></input></td>
+									<td><input class="form-control" type="text" ng-model="mockUser.USER_NAME"></input></td>
+									<td><input class="form-control" type="text" ng-model="mockUser.LOC.LONGITUDE"></input></td>
+									<td><input class="form-control" type="text" ng-model="mockUser.LOC.LATITUDE"></input></td>
+									<td><input class="form-control" type="text" ng-model="mockUser.MATCH_TAG"></input></td>
+									<td>
+										<button class="btn btn-primary" ng-click="queue(mockUser);">queue</button>
+										<button class="btn btn-danger">cancel</button>
+										<button class="btn btn-success" ng-click="accept(mockUser);">accept</button>
+										<button class="btn btn-info">finish</button>
+										<button class="btn btn-warning">evaluation</button>
+									</td>
+								</tr>
+							</tobdy>
+						</table>
+					</div>
+		   		</div>
+		   	</tab>			
 		    <tab heading="Users">
 		    	<div class="row">
 					<div class="col-md-12">
 						<h1>Known users</h1>
 
-						<table class="table table-condensed table-striped">
+						<table class="table table-hover table-striped">
 						<thead>
 							<tr>
 								<th>
@@ -33,6 +69,9 @@
 								<th>
 									LATITUDE
 								</th>
+								<th>
+									STATUS
+								</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -41,49 +80,18 @@
 								<td> {{user.USER_NAME}} </td>
 								<td> {{user.LOC.LONGITUDE}} </td>
 								<td> {{user.LOC.LATITUDE}} </td>
+								<td> {{user.STATUS}} </td>
 							</tr>
 						</tobdy>
 						</table>
 					</div>
 				</div>
 		    </tab>
-		   	<tab heading="Mock Users">
-		   		<div class="row">
-		   			<table class="table table-condensed table-striped">
-						<thead>
-							<tr>
-								<th class="col-sm-1">USER_ID</th>
-								<th class="col-sm-2">USER_NAME</th>
-								<th class="col-sm-2">LONGITUDE</th>
-								<th class="col-sm-2">LATITUDE</th>
-								<th class="col-sm-1">MATCH_TAG</th>
-								<th class="col-sm-5">FUNCTIONS</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr ng-repeat="mockUser in mockUsers">
-								<td><input type="text" ng-model="mockUser.USER_ID"></input></td>
-								<td><input type="text" ng-model="mockUser.USER_NAME"></input></td>
-								<td><input type="text" ng-model="mockUser.LOC.LONGITUDE"></input></td>
-								<td><input type="text" ng-model="mockUser.LOC.LATITUDE"></input></td>
-								<td><input type="text" ng-model="mockUser.MATCH_TAG"></input></td>
-								<td>
-									<button>queue</button>
-									<button>accept</button>
-									<button>cancel</button>
-									<button>finish</button>
-									<button>evaluation</button>
-								</td>
-							</tr>
-						</tobdy>
-					</table>
-		   		</div>
-		   	</tab>
 		    <tab heading="Tags">
 		    	<div class="row">
 					<div class="col-md-12">
 						<h1>Known tags</h1>
-						<table class="table table-condensed table-striped">
+						<table class="table table-hover table-striped">
 						<thead>
 							<tr>
 								<th>
@@ -106,24 +114,14 @@
 		    	<div class="row">
 					<div class="col-md-12">
 						<h1>Queue</h1>
-						<table class="table table-condensed table-striped">
+						<table class="table table-hover table-striped">
 						<thead>
 							<tr>
-								<th>
-									USER_ID
-								</th>
-								<th>
-									MATCH_TAG
-								</th>
-								<th>
-									TIME_LEFT
-								</th>
-								<th>
-									LONGITUDE
-								</th>
-								<th>
-									LATITUDE
-								</th>
+								<th>USER_ID</th>
+								<th>MATCH_TAG</th>
+								<th>TIME_LEFT</th>
+								<th>LONGITUDE</th>
+								<th>LATITUDE</th>
 							</tr>
 						</thead>
 
@@ -144,14 +142,50 @@
 		    <tab heading="Lobbies">
 				<div class="col-md-12">
 					<h1>Lobby</h1>
-					<div ng-repeat="lobby in data.lobbies">Tag: {{lobby.MATCH_TAG}}</div>
+						<table class="table table-hover table-striped">
+						<thead>
+							<tr>
+								<th>USER_ID</th>
+								<th>MATCH_TAG</th>
+								<th>MATCH_ID</th>
+								<th>STATUS</th>
+							</tr>
+						</thead>
+
+						<tbody>
+							<tr ng-repeat="lobby in data.lobbies">
+								<td> {{lobby.USER_ID}} </td>
+								<td> {{lobby.MATCH_TAG}} </td>
+								<td> {{lobby.MATCH_ID}} </td>
+								<td> {{lobby.STATUS}} </td>
+							</tr>
+						</tbody>
+					</table>
 				</div>
 			</tab>
 
 		    <tab heading="Running">
 				<div class="col-md-12">
 					<h1>Runnning</h1>
-					<div ng-repeat="match in data.running_matches">Tag: {{match.MATCH_TAG}}</div>
+						<table class="table table-hover table-striped">
+						<thead>
+							<tr>
+								<th>USER_ID</th>
+								<th>MATCH_TAG</th>
+								<th>MATCH_ID</th>
+								<th>STATUS</th>
+							</tr>
+						</thead>
+
+						<tbody>
+							<tr ng-repeat="match in data.running_matches">
+								<td> {{match.USER_ID}} </td>
+								<td> {{match.MATCH_TAG}} </td>
+								<td> {{match.MATCH_ID}} </td>
+								<td> {{match.STATUS}} </td>
+							</tr>
+						</tbody>
+					</table>
 				</div>
 			</tab>
 

@@ -9,9 +9,38 @@ angular.module('statusService', ['ngResource']).
         });
     });
 
-function StatusConroller($scope, $timeout, Data) {
+function StatusConroller($scope, $timeout, $http, Data) {
 
-	$scope.mockUsers = [{'USER_ID':'test_user_01'}];
+	$scope.mockUsers = [];
+	for (var i=0; i < 10; i++) {
+		$scope.mockUsers.push(
+		{
+			'USER_ID':'test_user_'+i,
+			'USER_NAME':'Test User '+i,
+			'LOC':{
+				'LONGITUDE':10+0.1*Math.random(),
+				'LATITUDE':10+0.1*Math.random(),
+			},
+			'MATCH_TAG':'bier',
+			'TIME_LEFT':1000
+		}
+		);
+	}
+
+	$scope.queue = function(user) {
+		$http.post("queue", user).then(function(response){
+			console.log("queue->response");
+			console.log(response.data);
+		})
+	}
+
+
+	$scope.accept = function(user) {
+		$http.post("accept", user).then(function(response){
+			console.log("accept->response");
+			console.log(response.data);
+		})
+	}
 
 	$scope.data = [];
 	$scope.buffer = [];

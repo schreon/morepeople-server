@@ -12,37 +12,7 @@
 </head>
 	<body ng-controller="StatusConroller">
 	<div class="container"> 
-		<div class="row">
-			<div class="col-md-4" ng-repeat="mockUser in mockUsers">
-					<table class="table">
-						<thead>
-							<tr>
-								<th>
-									USER_ID
-								</th>
-								<th>
-									USER_NAME
-								</th>
-								<th>
-									LONGITUDE
-								</th>
-								<th>
-									LATITUDE
-								</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td><input type="text" ng-model="mockUser.USER_ID"></input></td>
-								<td><input type="text" ng-model="mockUser.USER_NAME"></input></td>
-								<td><input type="text" ng-model="mockUser.LOC.LONGITUDE"></input></td>
-								<td><input type="text" ng-model="mockUser.LOC.LATITUDE"></input></td>
-							</tr>
-						</tobdy>
-					</table>
-			</div>
-		</div>
-		<tabset>
+		<tabset>			
 		    <tab heading="Users">
 		    	<div class="row">
 					<div class="col-md-12">
@@ -77,7 +47,38 @@
 					</div>
 				</div>
 		    </tab>
-
+		   	<tab heading="Mock Users">
+		   		<div class="row">
+		   			<table class="table">
+						<thead>
+							<tr>
+								<th>USER_ID</th>
+								<th>USER_NAME</th>
+								<th>LONGITUDE</th>
+								<th>LATITUDE</th>
+								<th>MATCH_TAG</th>
+								<th>FUNCTIONS</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr ng-repeat="mockUser in mockUsers">
+								<td><input type="text" ng-model="mockUser.USER_ID"></input></td>
+								<td><input type="text" ng-model="mockUser.USER_NAME"></input></td>
+								<td><input type="text" ng-model="mockUser.LOC.LONGITUDE"></input></td>
+								<td><input type="text" ng-model="mockUser.LOC.LATITUDE"></input></td>
+								<td><input type="text" ng-model="mockUser.MATCH_TAG"></input></td>
+								<td>
+									<button>queue</button>
+									<button>accept</button>
+									<button>cancel</button>
+									<button>finish</button>
+									<button>evaluation</button>
+								</td>
+							</tr>
+						</tobdy>
+					</table>
+		   		</div>
+		   	</tab>
 		    <tab heading="Tags">
 		    	<div class="row">
 					<div class="col-md-12">

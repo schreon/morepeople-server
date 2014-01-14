@@ -187,6 +187,26 @@ def post_queue():
     # if we arrive here, something went wrong
     return flask.jsonify({'STATUS':'INVALID'})
 
+@app.route("/lobby", methods['POST'])
+def show_lobby():
+    """ Return information about the accept state of the other two people """
+    data = json.loads(request.data)
+    user_id = data['USER_ID']
+
+    app.logger.info("/lobby")
+    app.logger.info(data)
+
+    lobby = lobbies.find_one({'USER_ID' : user_id})
+    if lobby is not None:
+        group = lobbies.find({'MATCH_ID' : lobby['MATCH_ID']})
+        others = []
+        for person in group:
+            if person['USER_ID'] != user_id:
+                others.append(person)
+        return flask.jsonify({'STATUS':lobby['STATUS'], 'OTHERS' : others })
+    else:
+        return flask.jsonify({'STATUS':'INVALID'})
+
 @app.route("/accept", methods=['POST'])
 def accept():
     """ Accept and simultaneously check if everyone has accepted already """
@@ -199,9 +219,16 @@ def accept():
     # is the user in a lobby? 
     lobby = lobbies.find_one({'USER_ID' : user_id})
     if lobby is not None:
+        group = lobbies.find({'MATCH_ID' : match_id})
+        others = []
+        for person in group:
+            if person['USER_ID'] != user_id:
+                others.append(person)
+        group.rewind()
+
         # if already running, say so:
         if running_matches.find_one({'USER_ID' : user_id}):
-            return flask.jsonify({'STATUS':'RUNNING'})
+            return flask.jsonify({'STATUS':'RUNNING', 'OTHERS':others})
 
         # set flag to accepted
         lobbies.update({'USER_ID' : user_id},
@@ -221,19 +248,19 @@ def accept():
             app.logger.info(person['USER_ID'] + " - STATUS: " +person['STATUS'])
             if person['STATUS']  != 'ACCEPTED':
                 accepted = False
+        group.rewind()
 
         # if they all have accepted, remove them and add them to the running matches
         if (accepted):
-            group.rewind()
             users.update({'USER_ID' : {'$in' : user_ids}}, {'$set' : {'STATUS':'RUNNING'}}, upsert=False, multi=True)
             for person in group:
                 running_matches.insert({'USER_ID':person['USER_ID'], 'MATCH_ID':person['MATCH_ID'], 'MATCH_TAG':person['MATCH_TAG']})
             # remove all from lobby
             lobbies.remove({'MATCH_ID' : match_id })
-            return flask.jsonify({'STATUS':'RUNNING'})
+            return flask.jsonify({'STATUS':'RUNNING', 'OTHERS':others})
         else:
             app.logger.info("Not everyone has accepted ...")
-            return flask.jsonify({'STATUS':'WAIT'})
+            return flask.jsonify({'STATUS':'OPEN', 'OTHERS':others})
 
     # if we arrive here, something went wrong.
     return flask.jsonify( { 'STATUS' : 'INVALID' } )

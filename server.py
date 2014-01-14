@@ -98,6 +98,14 @@ def matches(user_id):
         "MATCH_TAG" : res["MATCH_TAG"]
     } )
 
+def sanitize_loc(loc):
+    loc['LONGITUDE'] = float(loc['LONGITUDE'])
+    loc['LATITUDE'] = float(loc['LATITUDE'])
+    return loc
+
+def sanitize_tag(tag):
+    return str(tag).lower()
+
 def try_to_match_user(user_id):
     # find the nearest other queues within 1 km
     local_matches = matches(user_id)
@@ -130,14 +138,14 @@ def post_queue():
     app.logger.info(data)
 
     user_id = data['USER_ID']
-    match_tag = data['MATCH_TAG']  # bier,kaffee,pizza,kochen
+    match_tag = sanitize_tag(data['MATCH_TAG'])  # bier,kaffee,pizza,kochen
     time_left = data['TIME_LEFT']  
 
     user = users.find_one({'USER_ID' : user_id})
     if user is None:
         user = {
             'USER_ID' : user_id,
-            'LOC' : data['LOC'],
+            'LOC' : sanitize_loc(data['LOC']),
             'USER_NAME' : data['USER_NAME'],
             'STATUS' : 'QUEUED'
             }
@@ -148,7 +156,7 @@ def post_queue():
         users.update({
             'USER_ID' : user_id}, {
             '$set' : {
-                'LOC' : data['LOC'],
+                'LOC' : sanitize_loc(data['LOC']),
                 'USER_NAME' : data['USER_NAME']
             }})
 
@@ -166,9 +174,9 @@ def post_queue():
     if user['STATUS'] in ['OFFLINE', 'QUEUED']:
         # update queue
         if queue.find_one({'USER_ID' : user_id}) is None:
-            queue.insert({'USER_ID' : user_id,'TIME_LEFT' : time_left, 'MATCH_TAG' : match_tag, 'LOC' : data['LOC']})
+            queue.insert({'USER_ID' : user_id,'TIME_LEFT' : time_left, 'MATCH_TAG' : match_tag, 'LOC' : sanitize_loc(data['LOC'])})
         else:
-            queue.update({'USER_ID' : user_id}, {'$set' : {'TIME_LEFT' : time_left, 'MATCH_TAG' : match_tag, 'LOC' : data['LOC']}})
+            queue.update({'USER_ID' : user_id}, {'$set' : {'TIME_LEFT' : time_left, 'MATCH_TAG' : match_tag, 'LOC' : sanitize_loc(data['LOC'])}})
     
         # update the geolocation index
         queue.ensure_index([('LOC', pymongo.GEO2D)])
@@ -241,12 +249,12 @@ def post_add_tag():
     app.logger.info(data)
 
     if users.find_one({'USER_ID' : user_id}) is None:
-        users.insert({'USER_ID' : user_id, 'LOC' : data['LOC'], 'USER_NAME' : data['USER_NAME']})
+        users.insert({'USER_ID' : user_id, 'LOC' : sanitize_loc(data['LOC']), 'USER_NAME' : data['USER_NAME']})
     else:
-        users.update({'USER_ID' : user_id}, {'$set' : {'LOC' : data['LOC'], 'USER_NAME' : data['USER_NAME']}})
+        users.update({'USER_ID' : user_id}, {'$set' : {'LOC' : sanitize_loc(data['LOC']), 'USER_NAME' : data['USER_NAME']}})
         
 
-    match_tag = data['MATCH_TAG']
+    match_tag = sanitize_tag(data['MATCH_TAG'])
     # if the user is not enqueued right now, add him/her
     
     if tags.find_one({'MATCH_TAG' : match_tag}) is None:
@@ -262,7 +270,7 @@ def post_search_tag():
     app.logger.info("/searchtag")
     app.logger.info(data)
 
-    match_tag = data['MATCH_TAG']  # bier,kaffee,pizza,kochen
+    match_tag = sanitize_tag(data['MATCH_TAG'])  # bier,kaffee,pizza,kochen
 
     user_id = data['USER_ID']
 
@@ -270,9 +278,9 @@ def post_search_tag():
         data['USER_NAME'] = "server got no username!"
 
     if users.find_one({'USER_ID' : user_id}) is None:
-        users.insert({'USER_ID' : user_id, 'LOC' : data['LOC'], 'USER_NAME' : data['USER_NAME'], 'STATUS':'OFFLINE'})
+        users.insert({'USER_ID' : user_id, 'LOC' : sanitize_loc(data['LOC']), 'USER_NAME' : data['USER_NAME'], 'STATUS':'OFFLINE'})
     else:
-        users.update({'USER_ID' : user_id}, {'$set' : {'LOC' : data['LOC'], 'USER_NAME' : data['USER_NAME']}})
+        users.update({'USER_ID' : user_id}, {'$set' : {'LOC' : sanitize_loc(data['LOC']), 'USER_NAME' : data['USER_NAME']}})
     
 
     foundtags = tags.find({'MATCH_TAG' : {'$regex': '.*'+match_tag+'.*'}})

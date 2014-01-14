@@ -157,7 +157,7 @@ def post_queue():
         return flask.jsonify({'STATUS':'MATCH_FOUND'})
 
     # if the user was offline, he is now online
-    if user['STATUS'] == 'OFFLINE:'
+    if user['STATUS'] == 'OFFLINE':
         users.update({
             'USER_ID' : user_id
             }, {'$set' : {'STATUS':'QUEUED'}})

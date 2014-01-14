@@ -144,6 +144,8 @@ def post_queue():
         app.logger.info("Inserting user" + user['USER_NAME'])
         users.insert(user)
     else:
+        app.logger.info("Found user" + user['USER_NAME'])
+        app.loger.info(user)
         app.logger.info("Updating user" + user['USER_NAME'])
         # Update 
         users.update({

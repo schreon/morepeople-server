@@ -92,7 +92,7 @@ def matches(user_id):
 
     return queue.find( {
         "LOC" : {
-         "$maxDistance" : 1000.0 / 111.12, # 1km radius
+         "$maxDistance" : 1000, # 1km radius
          "$near" : [float(res['LOC']['LONGITUDE']), float(res['LOC']['LATITUDE'])]
         },
         "MATCH_TAG" : res["MATCH_TAG"]

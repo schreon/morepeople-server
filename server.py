@@ -187,7 +187,7 @@ def post_queue():
     # if we arrive here, something went wrong
     return flask.jsonify({'STATUS':'INVALID'})
 
-@app.route("/lobby", methods['POST'])
+@app.route("/lobby", methods=['POST'])
 def show_lobby():
     """ Return information about the accept state of the other two people """
     data = json.loads(request.data)

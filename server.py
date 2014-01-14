@@ -265,10 +265,10 @@ def post_search_tag():
         data['USER_NAME'] = "server got no username!"
 
     if users.find_one({'USER_ID' : user_id}) is None:
-        users.insert({'USER_ID' : user_id, 'LOC' : data['LOC'], 'USER_NAME' : data['USER_NAME']})
+        users.insert({'USER_ID' : user_id, 'LOC' : data['LOC'], 'USER_NAME' : data['USER_NAME'], 'STATUS':'OFFLINE'})
     else:
         users.update({'USER_ID' : user_id}, {'$set' : {'LOC' : data['LOC'], 'USER_NAME' : data['USER_NAME']}})
-        
+    
 
     foundtags = tags.find({'MATCH_TAG' : {'$regex': '.*'+match_tag+'.*'}})
 

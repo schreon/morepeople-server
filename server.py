@@ -206,6 +206,29 @@ def user_response(user_id):
 def get_userstate():
     """ Returns the state of the given user so the client can reconstruct the session """
     data = json.loads(request.data)
+    user_id = data['USER_ID']
+    # Create the user if he does not exist yet
+    user = users.find_one({'USER_ID' : user_id})
+    if user is None:
+        user = {
+            'USER_ID' : user_id,
+            'LOC' : sanitize_loc(data['LOC']),
+            'USER_NAME' : data['USER_NAME'],
+            'STATE' : 'OFFLINE', # initially offline, set to queued later!
+            'SERVERMESSAGE' : ''
+            }
+        app.logger.info("Inserting user")
+        app.logger.info(user)
+        users.insert(user)
+    else:   
+        # Update 
+        users.update({'USER_ID' : user_id},
+           {
+            '$set' : {
+                'LOC' : sanitize_loc(data['LOC']),
+                'USER_NAME' : data['USER_NAME']
+            }})
+
     return user_response(data['USER_ID'])
 
 @app.route("/search/", methods=['POST'])

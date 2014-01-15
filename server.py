@@ -361,6 +361,23 @@ def post_queue():
     # Create response dependent on user state
     return user_response(user_id)
 
+@app.route("/confirmcancel", methods=['POST'])
+def post_cancelconfirm():
+    """ Confirm the cancel. """
+    data = json.loads(request.data)
+
+    app.logger.info("/confirmcancel")
+    app.logger.info(data)
+    user_id = data['USER_ID']
+
+    user = users.find_one({'USER_ID' : user_id})
+
+    if user['STATE'] == 'CANCELLED':
+        # set state to cancelled
+        users.update({'USER_ID' : user['USER_ID']}, {'$set' : {'STATE' : 'OFFLINE'}})
+
+    return user_response(user_id)
+
 @app.route("/cancel", methods=["POST"])
 def post_cancel():
     """ Cancels, if allowed. """

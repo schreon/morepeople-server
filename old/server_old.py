@@ -137,6 +137,7 @@ def post_queue():
     app.logger.info(data)
 
     user_id = data['USER_ID']
+    app.logger.info("/queue for " + str(user_id))
     match_tag = sanitize_tag(data['MATCH_TAG'])  # bier,kaffee,pizza,kochen
     time_left = data['TIME_LEFT']  
 

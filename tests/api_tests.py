@@ -72,163 +72,143 @@ class FlaskAppTestCase(unittest.TestCase):
         response = self.app.post('/queue', headers, data=json.dumps(data))
 
         # should be there now
-        self.assertTrue(server.queue.find_one(data) is not None)
+        self.assertTrue(server.queue.find_one({'USER_ID' : data['USER_ID']}) is not None)
 
-    def test_enqueue_multiple_users(self):
-        """ Test if multiple clients are enqueued correctly """
-        # Generate multiple users
-        users = []
-        for idx in range(100):
-            data = {
-                'MATCH_TAG' : "beer"+str(idx),
-                'TIME_LEFT' : 7200,
-                'USER_ID' : 'idx_'+str(idx),
-                'USER_NAME' : 'server_test_user',
-                'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
-                }
-            users.append(data)
+    def test_enqueue_3_users(self):
+        """ Test if client is correctly enqueued """
 
-        # Post enqueue requests to server
-        headers = [('Content-Type', 'application/json')]
-        for user in users:
-
-            # should not be there initially
-            self.assertTrue(server.queue.find_one(user) is None)
-
-            # send request
-            response = self.app.post('/queue', headers, data=json.dumps(user))
-
-            # should be there now
-            self.assertTrue(server.queue.find_one(user) is not None)
-
-        print "finished enqueue multiple users"
-
-    def test_nearest_users(self):
-        """ test if the nearest users are actually found """
-        # Generate multiple users
-        users = []
-        for idx in range(6):
-            data = {
-                'MATCH_TAG' : "beer",
-                'TIME_LEFT' : 7200,
-                'USER_ID' : 'idx_near_'+str(idx),
-                'USER_NAME' : 'server_test_user'+str(idx),
-                'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
-                }
-            users.append(data)
-
-        # Post enqueue requests to server
-        headers = [('Content-Type', 'application/json')]
-        i = 1
-        for user in users:
-
-            # should not be there initially
-            self.assertTrue(server.queue.find_one(user) is None)
-
-            # send request
-            response = self.app.post('/queue', headers, data=json.dumps(user))
-
-            data = json.loads(response.data)
-
-            if i % 3 == 0:
-                # every third , there should be a match
-                self.assertEquals(data['STATUS'], 'MATCH_FOUND')
-                # last added user should not be in queue anymore
-                self.assertTrue(server.queue.find_one(user) is None)
-            else:
-                self.assertEquals(data['STATUS'], "WAIT")
-                self.assertTrue(server.queue.find_one(user) is not None)
-            i += 1
-
-        # retrieve nearest queues
-
-
-    def test_try_matching(self):
-        """ If there are enough users who are close enough to each other and who have the same match type, a match should take place and they should be removed from the queue """
-        # Generate multiple users
-        users = []
-        results = []
-        for idx in range(5):
-            data = {
-                'MATCH_TAG' : "beer",
-                'TIME_LEFT' : 7200,
-                'USER_ID' : 'idx_'+str(idx),
-                'USER_NAME' : 'server_test_user'+str(idx),
-                'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
-                }
-            users.append(data)
-
-        # Post enqueue requests to server
-        usr_nr = 1
-        headers = [('Content-Type', 'application/json')]
-        for user in users:
-
-            # should not be there initially
-            self.assertTrue(server.queue.find_one(user) is None)
-
-            # send request
-            response = self.app.post('/queue', headers, data=json.dumps(user))
-
-
-            data = json.loads(response.data)
-            # every 3rd user should instantly get a match
-            if usr_nr % 3 == 0:
-                self.assertEquals(data['STATUS'], 'MATCH_FOUND')
-            else:
-                # the others not
-                self.assertEquals(data['STATUS'], 'WAIT')
-            usr_nr += 1
-
-
-    def test_different_matchtypes_no_matching(self):
-        """ If there are enough users who are close enough to each other, but they have different match types selected, nothing should happen """
-        # TODO
-        pass
-
-    def test_too_far_away_no_matching(self):
-        """ If there are enough users who are not close enough to each other, even though they have the same match types selected, nothing should happen """
-        # TODO
-        pass
-
-    def test_closest_place_should_be_chosen(self):
-        """ If there are enough users who are close enough to each other, and they have different match types selected, the closest known meeting place should be chosen """
-        # TODO
-        pass
-
-    def test_add_unknown_match_tag(self):
-        """  If a tag is searched which does not exist yet, it should be added """
+        # first user
         data = {
-            'MATCH_TAG' : "newtag",
-            'USER_NAME' : 'server_test_user',
-            'USER_ID' : '123',
-            'LONGITUDE' : 123,
-            'LATITUDE' : 92
+            'USER_ID' : '1',
+            'USER_NAME' : 'server_test_user 1',
+            'MATCH_TAG' : "beer",
+            'TIME_LEFT' : 7200,
+            'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
             }
 
         headers = [('Content-Type', 'application/json')]
+
 
         # should not be there initially
-        self.assertTrue(server.tags.find_one(data) is None)
+        self.assertTrue(server.queue.find_one({'USER_ID' : '1'}) is None)
+        self.assertTrue(server.queue.find_one({'USER_ID' : '2'}) is None)
+        self.assertTrue(server.queue.find_one({'USER_ID' : '3'}) is None)
 
-        response = self.app.post('/addtag', headers, data=json.dumps(data))
+        response = self.app.post('/queue', headers, data=json.dumps(data))
+        response = json.loads(response.data)
+        self.assertEquals(response['STATE'], 'QUEUED')
 
         # should be there now
-        self.assertTrue(server.tags.find_one({'MATCH_TAG' : 'newtag'}) is not None)
+        self.assertTrue(server.queue.find_one({'USER_ID' : data['USER_ID']}) is not None)
 
+        # second user
         data = {
-            'MATCH_TAG' : "newt",
-            'USER_ID' : '123',
-            'USER_NAME' : 'server_test_user',
-            'LONGITUDE' : 123,
-            'LATITUDE' : 92
+            'USER_ID' : '2',
+            'USER_NAME' : 'server_test_user 2',
+            'MATCH_TAG' : "beer",
+            'TIME_LEFT' : 7200,
+            'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
             }
 
-        response = self.app.post('/searchtag', headers, data=json.dumps(data))
-
-        data = json.loads(response.data)
-        self.assertIn("newtag", data['RESULTS'])
+        headers = [('Content-Type', 'application/json')]
 
 
+        # should not be there initially
+        self.assertTrue(server.queue.find_one({'USER_ID' : '1'}) is not None)
+        self.assertTrue(server.queue.find_one({'USER_ID' : '2'}) is None)
+        self.assertTrue(server.queue.find_one({'USER_ID' : '3'}) is None)
+
+        response = self.app.post('/queue', headers, data=json.dumps(data))
+
+        # should be there now
+        self.assertTrue(server.queue.find_one({'USER_ID' : data['USER_ID']}) is not None)
+
+        # third user - should match!
+        data = {
+            'USER_ID' : '3',
+            'USER_NAME' : 'server_test_user 3',
+            'MATCH_TAG' : "beer",
+            'TIME_LEFT' : 7200,
+            'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
+            }
+
+        headers = [('Content-Type', 'application/json')]
+
+
+        # should not be there initially
+        self.assertTrue(server.queue.find_one({'USER_ID' : '1'}) is not None)
+        self.assertTrue(server.queue.find_one({'USER_ID' : '2'}) is not None)
+        self.assertTrue(server.queue.find_one({'USER_ID' : '3'}) is None)
+
+        response = self.app.post('/queue', headers, data=json.dumps(data))
+
+        # should be removed because match
+        self.assertTrue(server.queue.find_one({'USER_ID' : '1'}) is None)
+        self.assertTrue(server.queue.find_one({'USER_ID' : '2'}) is None)
+        self.assertTrue(server.queue.find_one({'USER_ID' : '3'}) is None)
+
+        # queue again - should still be the same
+
+        response = self.app.post('/queue', headers, data=json.dumps(data))
+        self.assertTrue(server.queue.find_one({'USER_ID' : '1'}) is None)
+        self.assertTrue(server.queue.find_one({'USER_ID' : '2'}) is None)
+        self.assertTrue(server.queue.find_one({'USER_ID' : '3'}) is None)
+
+        self.assertTrue(server.queue.find_one({'USER_ID' : '4'}) is None)
+        # fourth user 
+        data = {
+            'USER_ID' : '4',
+            'USER_NAME' : 'server_test_user 4',
+            'MATCH_TAG' : "beer",
+            'TIME_LEFT' : 7200,
+            'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
+            }
+        response = self.app.post('/queue', headers, data=json.dumps(data))
+        self.assertTrue(server.queue.find_one({'USER_ID' : '1'}) is None)
+        self.assertTrue(server.queue.find_one({'USER_ID' : '2'}) is None)
+        self.assertTrue(server.queue.find_one({'USER_ID' : '3'}) is None)
+        self.assertTrue(server.queue.find_one({'USER_ID' : '4'}) is not None)
+
+        # queue the three which are in the match again - should not appear in queues
+
+        data = {
+            'USER_ID' : '1',
+            'USER_NAME' : 'server_test_user 1',
+            'MATCH_TAG' : "beer",
+            'TIME_LEFT' : 7200,
+            'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
+            }
+        response = self.app.post('/queue', headers, data=json.dumps(data))
+        self.assertTrue(server.queue.find_one({'USER_ID' : '1'}) is None)
+        self.assertTrue(server.queue.find_one({'USER_ID' : '2'}) is None)
+        self.assertTrue(server.queue.find_one({'USER_ID' : '3'}) is None)
+        self.assertTrue(server.queue.find_one({'USER_ID' : '4'}) is not None)
+
+        data = {
+            'USER_ID' : '2',
+            'USER_NAME' : 'server_test_user 2',
+            'MATCH_TAG' : "beer",
+            'TIME_LEFT' : 7200,
+            'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
+            }
+        response = self.app.post('/queue', headers, data=json.dumps(data))
+        self.assertTrue(server.queue.find_one({'USER_ID' : '1'}) is None)
+        self.assertTrue(server.queue.find_one({'USER_ID' : '2'}) is None)
+        self.assertTrue(server.queue.find_one({'USER_ID' : '3'}) is None)
+        self.assertTrue(server.queue.find_one({'USER_ID' : '4'}) is not None)
+
+        data = {
+            'USER_ID' : '3',
+            'USER_NAME' : 'server_test_user 3',
+            'MATCH_TAG' : "beer",
+            'TIME_LEFT' : 7200,
+            'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
+            }
+        response = self.app.post('/queue', headers, data=json.dumps(data))
+        self.assertTrue(server.queue.find_one({'USER_ID' : '1'}) is None)
+        self.assertTrue(server.queue.find_one({'USER_ID' : '2'}) is None)
+        self.assertTrue(server.queue.find_one({'USER_ID' : '3'}) is None)
+        self.assertTrue(server.queue.find_one({'USER_ID' : '4'}) is not None)
 
 if __name__ == '__main__':
     unittest.main()

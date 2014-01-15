@@ -67,6 +67,15 @@ tags.insert({ 'MATCH_TAG' : "pizza" })
 tags.insert({ 'MATCH_TAG' : "schweinereien" })
 
 
+
+def sanitize_loc(loc):
+    loc['LONGITUDE'] = float(loc['LONGITUDE'])
+    loc['LATITUDE'] = float(loc['LATITUDE'])
+    return loc
+
+def sanitize_tag(tag):
+    return str(tag).lower()
+
 @app.route("/")
 def get_index():
     app.logger.info("index.html request")
@@ -89,14 +98,14 @@ def get_status():
 
 def offline_response(user_id):
     """ Response if user is offline """
-    return flask.jsonify({'STATUS' : 'OFFLINE'})
+    return flask.jsonify({'STATE' : 'OFFLINE'})
 
 def queued_response(user_id):
     """ Response if user if currently queued """
     # get queue item
     qu = queue.find_one({'USER_ID' : user_id})
     return flask.jsonify({
-        'STATUS' : 'QUEUED',
+        'STATE' : 'QUEUED',
         'MATCH_TAG' : qu['MATCH_TAG'],
         'TIME_LEFT' : qu['TIME_LEFT']
         })
@@ -111,7 +120,7 @@ def open_response(user_id):
             others.append(user)
 
     return flask.jsonify({
-        'STATUS' : 'OPEN',
+        'STATE' : 'OPEN',
         'OTHERS' : others,
         'TIME_LEFT' : lobby['TIME_LEFT']
         })
@@ -126,7 +135,7 @@ def accepted_response(user_id):
             others.append(user)
 
     return flask.jsonify({
-        'STATUS' : 'ACCEPTED',
+        'STATE' : 'ACCEPTED',
         'OTHERS' : others,
         'TIME_LEFT' : lobby['TIME_LEFT']
         })
@@ -141,7 +150,7 @@ def running_response(user_id):
             others.append(user)
 
     return flask.jsonify({
-        'STATUS' : 'RUNNING',
+        'STATE' : 'RUNNING',
         'OTHERS' : others
         })
 
@@ -155,7 +164,7 @@ def finished_response(user_id):
             others.append(user)
 
     return flask.jsonify({
-        'STATUS' : 'FINISHED',
+        'STATE' : 'FINISHED',
         'OTHERS' : others
         })
 
@@ -163,25 +172,34 @@ def cancelled_response(user_id):
     """ Resposne if user is in cancelled state """
     user = users.find_one({'USER_ID' : user_id})
     return flask.jsonify({
-        'STATUS' : 'CANCELLED',
+        'STATE' : 'CANCELLED',
         'SERVERMESSAGE' : user['SERVERMESSAGE']
         })
 
+response_map = {
+    'OFFLINE' : offline_response,
+    'QUEUED' : queued_response,
+    'OPEN' : open_response,
+    'ACCEPTED' : accepted_response,
+    'RUNNING' : running_response,
+    'FINISHED' : finished_response,
+    'CANCELLED' : cancelled_response
+}
+
 def user_response(user_id):
     """ Generates a response dependent on the current user state """
+    app.logger.info("User Response for " + str(user_id))
     user = users.find_one({'USER_ID':user_id})
+    app.logger.info("User Info found:")
+    app.logger.info(user)
+    app.logger.info("All users:")
+    for user in users.find({}):
+        app.logger.info("  " + str(user))
     # creates a response depending on the state of the user
     state = user['STATE']
+    app.logger.info("user has state" + str(state))
     # switch statement
-    return {
-        'OFFLINE' : offline_response(user_id),
-        'QUEUED' : queued_response(user_id),
-        'OPEN' : open_response(user_id),
-        'ACCEPTED' : accepted_response(user_id),
-        'RUNNING' : running_response(user_id),
-        'FINISHED' : finished_response(user_id),
-        'CANCELLED' : cancelled_response(user_id)
-    }[state]
+    return response_map[state](user_id)
 
 @app.route("/state/<user_id>")
 def get_userstate(user_id):
@@ -206,19 +224,33 @@ def get_tag(tag):
     # TODO: fuzzy search
     return flask.jsonify({'RESULTS' : result})
 
-def try_to_match_user(user_id):
+def try_to_match(user_id):
     # find the nearest other queues within 1 km
-    local_matches = queue(user_id)
+    res = queue.find_one({'USER_ID' : user_id})
+    if res is None:
+        return;
+    app.logger.info('try_to_match')
+    app.logger.info(res)
+    local_matches = queue.find( {
+        "LOC" : {
+         "$maxDistance" : 1000, # 1km radius
+         "$near" : [float(res['LOC']['LONGITUDE']), float(res['LOC']['LATITUDE'])]
+        },
+        "MATCH_TAG" : res["MATCH_TAG"]
+    } )
+
     if (local_matches.count() >= 3):
+        app.logger.info("!!! MATCH !!!")
         # generatue UID
         uid = ObjectId()
         # remove them
         for qu in local_matches:
-            # Remove queue entry
-            queue.remove(qu)
+
+            # remove queue entry
+            queue.remove({'USER_ID' : qu['USER_ID']})
 
             # Create lobby entry
-            qu['STATUS'] = 'OPEN'
+            qu['STATE'] = 'OPEN'
             qu['MATCH_ID'] = uid
             lobbies.insert(qu)
 
@@ -226,17 +258,23 @@ def try_to_match_user(user_id):
             users.update({
                 'USER_ID' : qu['USER_ID']}, {
                 '$set' : {
-                    'STATUS' : 'OPEN'
+                    'STATE' : 'OPEN'
                 }})
+    else:
+        app.logger.info("No Match")
 
-
-@app.route("/queue", methods="POST")
+@app.route("/queue", methods=["POST"])
 def post_queue():
-    """ Enqueues the user, create him if he does not exist yet, and adds the tag to the known tags"""
-    data = json.loads(request.data)
+    """ Enqueues the user, create him if he does not exist yet, and adds the tag to the known tags. """
 
     app.logger.info("/queue")
+
+    data = json.loads(request.data)
+
     app.logger.info(data)
+    user_id = data['USER_ID']
+    time_left = data['TIME_LEFT']
+    match_tag = data['MATCH_TAG']
 
     # Create the user if he does not exist yet
     user = users.find_one({'USER_ID' : user_id})
@@ -248,12 +286,13 @@ def post_queue():
             'STATE' : 'OFFLINE', # initially offline, set to queued later!
             'SERVERMESSAGE' : ''
             }
-        app.logger.info("Inserting user " + user['USER_NAME'])
+        app.logger.info("Inserting user")
+        app.logger.info(user)
         users.insert(user)
-    else:
+    else:   
         # Update 
-        users.update({
-            'USER_ID' : user_id}, {
+        users.update({'USER_ID' : user_id},
+           {
             '$set' : {
                 'LOC' : sanitize_loc(data['LOC']),
                 'USER_NAME' : data['USER_NAME']
@@ -262,27 +301,36 @@ def post_queue():
     # If the user is in offline mode, create queue and set user state to queued
     if (user['STATE'] == 'OFFLINE'):
         queue.insert({'USER_ID' : user_id,'TIME_LEFT' : time_left, 'MATCH_TAG' : match_tag, 'LOC' : sanitize_loc(data['LOC'])})
-        users.update({'USER_ID':user['USER_ID']}, {'STATE' : 'QUEUED'})
+        users.update({'USER_ID':user['USER_ID']}, { '$set' : {'STATE' : 'QUEUED'}})
 
     # If he is already queued, update the queue entry
     if (user['STATE'] == 'QUEUED'):
         queue.update({'USER_ID' : user_id}, {'$set' : {'TIME_LEFT' : time_left, 'MATCH_TAG' : match_tag, 'LOC' : sanitize_loc(data['LOC'])}})
 
+
+    # refresh user
+    user = users.find_one({'USER_ID' : user_id})
+
+    if(user['STATE'] in ['OFFLINE', 'QUEUED']):
+
+        # Update the geolocation index
+        queue.ensure_index([('LOC', pymongo.GEO2D)])
+
+        # Try to match the users
+        try_to_match(user_id)
+
     # Update the geolocation index
     queue.ensure_index([('LOC', pymongo.GEO2D)])
 
-    # Try to match the users
-    try_to_match(user['USER_ID'])
-
     # Create response dependent on user state
-    return user_response(user['USER_ID'])
+    return user_response(user_id)
 
-@app.route("/cancel", methods="POST")
+@app.route("/cancel", methods=["POST"])
 def post_cancel():
     """ Cancels, if allowed. """
     data = json.loads(request.data)
 
-    app.logger.info("/queue")
+    app.logger.info("/cancel")
     app.logger.info(data)
     user_id = data['USER_ID']
 
@@ -290,7 +338,7 @@ def post_cancel():
 
     if user['STATE'] == 'QUEUED':
         # set state to cancelled
-        users.update({'USER_ID' : user['USER_ID']}, {'STATUS' : 'CANCELLED'})
+        users.update({'USER_ID' : user['USER_ID']}, {'$set' : {'STATE' : 'CANCELLED'}})
         # remove queue entry
         queue.remove({'USER_ID' : user['USER_ID']})
 
@@ -304,23 +352,25 @@ def post_cancel():
         # remove queue entries
         queue.remove({'MATCH_ID' : match_id})
         # set user states to cancelled and message accordingly
-        users.update({'USER_ID' : {'$in' : u}}, {'STATUS' : 'CANCELLED', 'SERVERMESSAGE' : 'Ein Nutzer hat das Match abgebrochen :('})
+        users.update({'USER_ID' : {'$in' : u}}, {'$set' : {'STATE' : 'CANCELLED', 'SERVERMESSAGE' : 'Ein Nutzer hat das Match abgebrochen :('}})
     
     # else, do nothing.
 
     return user_response(user['USER_ID'])
 
-@app.route("/accept", methods="POST")
+@app.route("/accept", methods=["POST"])
 def post_accept():
     """ The user accepts a match """
+
+    app.logger.info("/accept")
+
     data = json.loads(request.data)
     user_id = data['USER_ID']
 
-    app.logger.info("/queue")
     app.logger.info(data)
 
     # Set his state to accepted
-    users.update({'USER_ID' : user_id}, {'STATE' : 'ACCEPTED'})
+    users.update({'USER_ID' : user_id}, {'$set' : {'STATE' : 'ACCEPTED'} })
 
     # get user's match ide
     match_id = lobbies.find_one({'USER_ID' : user_id})['MACH_ID']
@@ -331,13 +381,13 @@ def post_accept():
     user_ids = []
     for person in group:
         user_ids.append(person['USER_ID'])
-        app.logger.info(person['USER_ID'] + " - STATUS: " +person['STATUS'])
-        if person['STATUS']  != 'ACCEPTED':
+        app.logger.info(person['USER_ID'] + " - STATE: " +person['STATE'])
+        if person['STATE']  != 'ACCEPTED':
             accepted = False
 
     if accepted:
         # If everyone has accepted, set them to running,
-        users.update({'USER_ID' : {'$in' : user_ids}}, {'STATE' : 'RUNNING'}, upsert=False, multi=True)
+        users.update({'USER_ID' : {'$in' : user_ids}}, {'$set' : {'STATE' : 'RUNNING'}}, upsert=False, multi=True)
 
         # Delete lobby entries
         lobbies.remove({'MATCH_ID' : match_id})
@@ -348,18 +398,18 @@ def post_accept():
     # create user response
     return user_response(user_id)
 
-@app.route("/chat/<match_id>", methods="GET")
+@app.route("/chat/<match_id>", methods=["GET"])
 def get_chat():
     """ Returns the chat of the match """
     return None
 
-@app.route("/chat/<match_id>", methods="POST")
+@app.route("/chat/<match_id>", methods=["POST"])
 def post_chat():
     """ The user sends a chat message """
     # TODO
     return None
 
-@app.route("/finish", methods="POST")
+@app.route("/finish", methods=["POST"])
 def post_finish():
     data = json.loads(request.data)
     user_id = data['USER_ID']
@@ -368,13 +418,13 @@ def post_finish():
 
     if user['STATE'] == 'RUNNING':
         # set user state to finished
-        users.update({'USER_ID' : user_id}, {'STATE' : 'FINISHED'})
+        users.update({'USER_ID' : user_id}, {'$set', {'STATE' : 'FINISHED'}})
         # set match entry to finished
-        matches.update({'USER_ID' : user_id}, {'STATE' : 'FINISHED'})
+        matches.update({'USER_ID' : user_id}, {'$set', {'STATE' : 'FINISHED'}})
 
     return user_response(user_id)
 
-@app.route("/evaluate", methods="POST")
+@app.route("/evaluate", methods=["POST"])
 def post_evaluation():
     data = json.loads(request.data)
     user_id = data['USER_ID']
@@ -385,7 +435,7 @@ def post_evaluation():
     if user['STATE'] == 'FINISHED':
         # set user state to offline
         # set user state to finished
-        users.update({'USER_ID' : user_id}, {'STATE' : 'OFFLINE'})
+        users.update({'USER_ID' : user_id}, {'$set', {'STATE' : 'OFFLINE'}})
 
         # remove match entry
         matches.remove({'USER_ID' : user_id})

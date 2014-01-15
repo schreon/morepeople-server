@@ -202,15 +202,19 @@ def user_response(user_id):
     # switch statement
     return response_map[state](user)
 
-@app.route("/state/<user_id>")
-def get_userstate(user_id):
+@app.route("/state", methods=['POST'])
+def get_userstate():
     """ Returns the state of the given user so the client can reconstruct the session """
-    return user_response(user_id)
+    data = json.loads(request.data)
+    return user_response(data['USER_ID'])
 
-@app.route("/search/<tag>")
-def get_tag(tag):
+@app.route("/search/", methods=['POST'])
+def get_tag():
     """ Returns tags similar to the given tag """
 
+    data = json.loads(request.data)
+
+    tag = data['MATCH_TAG']
     app.logger.info("/search/"+str(tag))
     app.logger.info(data)
 

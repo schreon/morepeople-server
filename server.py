@@ -96,13 +96,14 @@ def get_status():
         evaluations=[evaluation for evaluation in evaluations.find({})]
     ))
 
-def offline_response(user_id):
+def offline_response(user):
     """ Response if user is offline """
     return flask.jsonify({'STATE' : 'OFFLINE'})
 
-def queued_response(user_id):
+def queued_response(user):
     """ Response if user if currently queued """
     # get queue item
+    user_id = user['USER_ID']
     qu = queue.find_one({'USER_ID' : user_id})
     return flask.jsonify({
         'STATE' : 'QUEUED',
@@ -110,8 +111,9 @@ def queued_response(user_id):
         'TIME_LEFT' : qu['TIME_LEFT']
         })
 
-def open_response(user_id):
+def open_response(user):
     """ Response if user is currently in a lobby and open """
+    user_id = user['USER_ID']
     lobby = lobbies.find_one({'USER_ID' : user_id})
     # others in the lobby
     others = []
@@ -125,8 +127,9 @@ def open_response(user_id):
         'TIME_LEFT' : lobby['TIME_LEFT']
         })
 
-def accepted_response(user_id):
+def accepted_response(user):
     """ Response if user is currently in a lobby and open """
+    user_id = user['USER_ID']
     lobby = lobbies.find_one({'USER_ID' : user_id})
     # others in the lobby
     others = []
@@ -140,12 +143,15 @@ def accepted_response(user_id):
         'TIME_LEFT' : lobby['TIME_LEFT']
         })
 
-def running_response(user_id):
+def running_response(user):
     """ Response if user is in a running match """
+    user_id = user['USER_ID']
     match = matches.find_one({'USER_ID' : user_id})
+    if match is None:
+        raise ">>>> AHHH MATCH IS NONE <<<<"
     # others in the lobby
     others = []
-    for user in matches.find({'MATCH_ID' : lobby['MATCH_ID']}, upserv=False, multi=True):
+    for user in matches.find({'MATCH_ID' : match['MATCH_ID']}, upserv=False, multi=True):
         if user['USER_ID'] != user_id:
             others.append(user)
 
@@ -154,8 +160,9 @@ def running_response(user_id):
         'OTHERS' : others
         })
 
-def finished_response(user_id):
+def finished_response(user):
     """ Response if user has finished his match """
+    user_id = user['USER_ID']
     match = matches.find_one({'USER_ID' : user_id})
     # others in the lobby
     others = []
@@ -168,9 +175,8 @@ def finished_response(user_id):
         'OTHERS' : others
         })
 
-def cancelled_response(user_id):
+def cancelled_response(user):
     """ Resposne if user is in cancelled state """
-    user = users.find_one({'USER_ID' : user_id})
     return flask.jsonify({
         'STATE' : 'CANCELLED',
         'SERVERMESSAGE' : user['SERVERMESSAGE']
@@ -188,18 +194,13 @@ response_map = {
 
 def user_response(user_id):
     """ Generates a response dependent on the current user state """
-    app.logger.info("User Response for " + str(user_id))
     user = users.find_one({'USER_ID':user_id})
-    app.logger.info("User Info found:")
-    app.logger.info(user)
-    app.logger.info("All users:")
-    for user in users.find({}):
-        app.logger.info("  " + str(user))
+    if user is None:
+        raise ">>>>> AHHH USER IS NONE <<<<"
     # creates a response depending on the state of the user
     state = user['STATE']
-    app.logger.info("user has state" + str(state))
     # switch statement
-    return response_map[state](user_id)
+    return response_map[state](user)
 
 @app.route("/state/<user_id>")
 def get_userstate(user_id):
@@ -311,7 +312,7 @@ def post_queue():
     # refresh user
     user = users.find_one({'USER_ID' : user_id})
 
-    if(user['STATE'] in ['OFFLINE', 'QUEUED']):
+    if(user['STATE'] == 'QUEUED'):
 
         # Update the geolocation index
         queue.ensure_index([('LOC', pymongo.GEO2D)])
@@ -369,31 +370,38 @@ def post_accept():
 
     app.logger.info(data)
 
-    # Set his state to accepted
-    users.update({'USER_ID' : user_id}, {'$set' : {'STATE' : 'ACCEPTED'} })
+    user = users.find_one({'USER_ID' : user_id})
 
-    # get user's match ide
-    match_id = lobbies.find_one({'USER_ID' : user_id})['MACH_ID']
+    if user['STATE'] == 'OPEN':
+        # Set his state to accepted
+        users.update({'USER_ID' : user_id}, {'$set' : {'STATE' : 'ACCEPTED'} })
 
-    # check if everone in the lobby has accepted
-    group = lobbies.find({'MATCH_ID' : match_id})
-    accepted = True
-    user_ids = []
-    for person in group:
-        user_ids.append(person['USER_ID'])
-        app.logger.info(person['USER_ID'] + " - STATE: " +person['STATE'])
-        if person['STATE']  != 'ACCEPTED':
-            accepted = False
+        # Set lobby state to accepted
+        lobbies.update({'USER_ID' : user_id}, {'$set' : {'STATE' : 'ACCEPTED'}})
+        # get user's match ide
+        match_id = lobbies.find_one({'USER_ID' : user_id})['MATCH_ID']
 
-    if accepted:
-        # If everyone has accepted, set them to running,
-        users.update({'USER_ID' : {'$in' : user_ids}}, {'$set' : {'STATE' : 'RUNNING'}}, upsert=False, multi=True)
+        # check if everone in the lobby has accepted
+        group = lobbies.find({'MATCH_ID' : match_id})
+        accepted = True
+        user_ids = []
+        for person in group:
+            user_ids.append(person['USER_ID'])
+            app.logger.info(person['USER_ID'] + " - STATE: " +person['STATE'])
+            if person['STATE']  != 'ACCEPTED':
+                accepted = False
 
-        # Delete lobby entries
-        lobbies.remove({'MATCH_ID' : match_id})
+        if accepted:
+            app.logger.info("Inserting RUNNING MATCH")
+            # If everyone has accepted, set them to running,
+            users.update({'USER_ID' : {'$in' : user_ids}}, {'$set' : {'STATE' : 'RUNNING'}}, upsert=False, multi=True)
 
-        # And create match entries
-        matches.insert({'USER_ID' : user_id, 'MATCH_ID' : match_id, 'STATE' : 'RUNNING'})
+            # Delete lobby entries
+            lobbies.remove({'MATCH_ID' : match_id})
+
+            # And create match entries
+            for user_id in user_ids:
+                matches.insert({'USER_ID' : user_id, 'MATCH_ID' : match_id, 'STATE' : 'RUNNING'})
 
     # create user response
     return user_response(user_id)

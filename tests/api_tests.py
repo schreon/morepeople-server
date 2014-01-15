@@ -210,5 +210,50 @@ class FlaskAppTestCase(unittest.TestCase):
         self.assertTrue(server.queue.find_one({'USER_ID' : '3'}) is None)
         self.assertTrue(server.queue.find_one({'USER_ID' : '4'}) is not None)
 
+        # they all accept now
+        data = {
+            'USER_ID' : '1',
+            'USER_NAME' : 'server_test_user 3',
+            'MATCH_TAG' : "beer",
+            'TIME_LEFT' : 7200,
+            'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
+            }
+        response = self.app.post('/accept', headers, data=json.dumps(data)) 
+        response = json.loads(response.data)      
+        self.assertTrue(response['STATE'] == 'ACCEPTED')
+        self.assertTrue(server.lobbies.find_one({'USER_ID' : '1'})['STATE'] == 'ACCEPTED')
+
+        data = {
+            'USER_ID' : '2',
+            'USER_NAME' : 'server_test_user 3',
+            'MATCH_TAG' : "beer",
+            'TIME_LEFT' : 7200,
+            'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
+            }
+        response = self.app.post('/accept', headers, data=json.dumps(data)) 
+        response = json.loads(response.data)      
+        self.assertTrue(response['STATE'] == 'ACCEPTED')
+        self.assertTrue(server.lobbies.find_one({'USER_ID' : '2'})['STATE'] == 'ACCEPTED')
+
+        data = {
+            'USER_ID' : '3',
+            'USER_NAME' : 'server_test_user 3',
+            'MATCH_TAG' : "beer",
+            'TIME_LEFT' : 7200,
+            'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
+            }
+        response = self.app.post('/accept', headers, data=json.dumps(data)) 
+        response = json.loads(response.data)      
+        self.assertTrue(response['STATE'] == 'RUNNING')
+
+        # lobby should be deleted now
+        self.assertTrue(server.lobbies.find_one({'USER_ID' : '1'}) is None)
+        self.assertTrue(server.lobbies.find_one({'USER_ID' : '2'}) is None)
+        self.assertTrue(server.lobbies.find_one({'USER_ID' : '3'}) is None)
+
+        # running entries should exist now
+        self.assertTrue(server.matches.find_one({'USER_ID' : '1'}) is not None)
+        self.assertTrue(server.matches.find_one({'USER_ID' : '2'}) is not None)
+        self.assertTrue(server.matches.find_one({'USER_ID' : '3'}) is not None)
 if __name__ == '__main__':
     unittest.main()

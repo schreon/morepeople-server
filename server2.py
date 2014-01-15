@@ -188,24 +188,121 @@ def get_userstate(user_id):
 	""" Returns the state of the given user so the client can reconstruct the session """
 	return user_response(user_id)
 
-
 @app.route("/search/<tag>")
 def get_tag(tag):
 	""" Returns tags similar to the given tag """
-	# TODO
-	return None
+
+    app.logger.info("/search/"+str(tag))
+    app.logger.info(data)
+
+    match_tag = sanitize_tag(tag)  # bier,kaffee,pizza,kochen
+
+    foundtags = tags.find({'MATCH_TAG' : {'$regex': '.*'+match_tag+'.*'}})
+
+    result = []
+    for tag in foundtags:
+        result.append(tag['MATCH_TAG'])
+
+    # TODO: fuzzy search
+    return flask.jsonify({'RESULTS' : result})
+
+def try_to_match_user(user_id):
+    # find the nearest other queues within 1 km
+    local_matches = queue(user_id)
+    if (local_matches.count() >= 3):
+        # generatue UID
+        uid = ObjectId()
+        # remove them
+        for qu in local_matches:
+        	# Remove queue entry
+            queue.remove(qu)
+
+            # Create lobby entry
+            qu['STATUS'] = 'OPEN'
+            qu['MATCH_ID'] = uid
+            lobbies.insert(qu)
+
+            # Update user
+            users.update({
+                'USER_ID' : qu['USER_ID']}, {
+                '$set' : {
+                    'STATUS' : 'OPEN'
+                }})
+
+
+@app.route("/queue", methods="POST")
+def post_queue():
+	""" Enqueues the user, create him if he does not exist yet, and adds the tag to the known tags"""
+    data = json.loads(request.data)
+
+    app.logger.info("/queue")
+    app.logger.info(data)
+
+    # Create the user if he does not exist yet
+    user = users.find_one({'USER_ID' : user_id})
+    if user is None:
+        user = {
+            'USER_ID' : user_id,
+            'LOC' : sanitize_loc(data['LOC']),
+            'USER_NAME' : data['USER_NAME'],
+            'STATE' : 'OFFLINE', # initially offline, set to queued later!
+            'SERVERMESSAGE' : ''
+            }
+        app.logger.info("Inserting user " + user['USER_NAME'])
+        users.insert(user)
+    else:
+        # Update 
+        users.update({
+            'USER_ID' : user_id}, {
+            '$set' : {
+                'LOC' : sanitize_loc(data['LOC']),
+                'USER_NAME' : data['USER_NAME']
+            }})
+
+    # If the user is in offline mode, create queue and set user state to queued
+    if (user['STATE'] == 'OFFLINE'):
+        queue.insert({'USER_ID' : user_id,'TIME_LEFT' : time_left, 'MATCH_TAG' : match_tag, 'LOC' : sanitize_loc(data['LOC'])})
+    	users.update({'USER_ID':user['USER_ID']}, {'STATE' : 'QUEUED'})
+
+    # If he is already queued, update the queue entry
+    if (user['STATE'] == 'QUEUED'):
+        queue.update({'USER_ID' : user_id}, {'$set' : {'TIME_LEFT' : time_left, 'MATCH_TAG' : match_tag, 'LOC' : sanitize_loc(data['LOC'])}})
+
+    # Update the geolocation index
+    queue.ensure_index([('LOC', pymongo.GEO2D)])
+
+    # Try to match the users
+    try_to_match(user['USER_ID'])
+
+	# Create response dependent on user state
+	return user_response(user['USER_ID'])
 
 @app.route("/cancel", methods="POST")
 def post_cancel():
 	""" Cancels, if allowed. """
-	# TODO
-	return None
+    user = users.find_one({'USER_ID' : user_id})
 
-@app.route("/queue", methods="POST")
-def post_queue():
-	""" Enqueues the user """
-	# TODO
-	return None
+    if user['STATE'] == 'QUEUED':
+    	# set state to cancelled
+    	users.update({'USER_ID' : user['USER_ID']}, {'STATUS' : 'CANCELLED'})
+    	# remove queue entry
+    	queue.remove({'USER_ID' : user['USER_ID']})
+
+    if user['STATE'] == 'OPEN':
+    	match_id = queue.find_one({'USER_ID' : user['USER_ID']})['MATCH_ID']
+
+    	# get user id_s
+    	u = []
+    	for queue_entry in queue.find({'MATCH_ID' : match_id}):
+    		u.append(queue_entry['USER_ID'])
+    	# remove queue entries
+    	queue.remove({'MATCH_ID' : match_id})
+    	# set user states to cancelled and message accordingly
+    	users.update({'USER_ID' : {'$in' : u}}, {'STATUS' : 'CANCELLED', 'SERVERMESSAGE' : 'Ein Nutzer hat das Match abgebrochen :('})
+    
+    # else, do nothing.
+
+	return user_response(user['USER_ID'])
 
 @app.route("/accept", methods="POST")
 def post_accept():

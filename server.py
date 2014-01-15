@@ -245,7 +245,7 @@ def get_tag():
 
     data = json.loads(request.data)
 
-    tag = data['MATCH_TAG']
+    tag = sanitize_tag(data['MATCH_TAG'])
     app.logger.info("/search/"+str(tag))
     app.logger.info(data)
 
@@ -310,7 +310,7 @@ def post_queue():
     app.logger.info(data)
     user_id = data['USER_ID']
     time_left = data['TIME_LEFT']
-    match_tag = data['MATCH_TAG']
+    match_tag = sanitize_tag(data['MATCH_TAG'])
 
     # Create the user if he does not exist yet
     user = users.find_one({'USER_ID' : user_id})

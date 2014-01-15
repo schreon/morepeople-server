@@ -205,11 +205,16 @@ def user_response(user_id):
 @app.route("/state", methods=['POST'])
 def get_userstate():
     """ Returns the state of the given user so the client can reconstruct the session """
+
+    app.logger.info("/state")
     data = json.loads(request.data)
+    app.logger.info(data)
     user_id = data['USER_ID']
+    app.logger.info(user_id)
     # Create the user if he does not exist yet
     user = users.find_one({'USER_ID' : user_id})
     if user is None:
+        app.logger.info("User is None")
         user = {
             'USER_ID' : user_id,
             'LOC' : sanitize_loc(data['LOC']),
@@ -221,6 +226,7 @@ def get_userstate():
         app.logger.info(user)
         users.insert(user)
     else:   
+        app.logger.info("User is updated")
         # Update 
         users.update({'USER_ID' : user_id},
            {
@@ -228,6 +234,8 @@ def get_userstate():
                 'LOC' : sanitize_loc(data['LOC']),
                 'USER_NAME' : data['USER_NAME']
             }})
+
+    app.logger.info("Finished, sending response")
 
     return user_response(data['USER_ID'])
 

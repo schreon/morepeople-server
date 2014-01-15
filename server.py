@@ -66,6 +66,7 @@ tags.insert({ 'MATCH_TAG' : "kochen" })
 tags.insert({ 'MATCH_TAG' : "pizza" })
 tags.insert({ 'MATCH_TAG' : "schweinereien" })
 
+
 @app.route("/")
 def get_index():
     app.logger.info("index.html request")
@@ -75,6 +76,7 @@ def get_index():
 
 @app.route("/status")
 def get_status():
+    """ Returns the full server status """
     # app.logger.info("status request")
     return flask.jsonify(dict(
         users=[user for user in users.find({})], 
@@ -85,70 +87,168 @@ def get_status():
         evaluations=[evaluation for evaluation in evaluations.find({})]
     ))
 
-def matches(user_id):   
-    # user's queue 
-    res = queue.find_one({'USER_ID' : user_id})
+def offline_response(user_id):
+    """ Response if user is offline """
+    return flask.jsonify({'STATUS' : 'OFFLINE'})
 
-    return queue.find( {
-        "LOC" : {
-         "$maxDistance" : 1000, # 1km radius
-         "$near" : [float(res['LOC']['LONGITUDE']), float(res['LOC']['LATITUDE'])]
-        },
-        "MATCH_TAG" : res["MATCH_TAG"]
-    } )
+def queued_response(user_id):
+    """ Response if user if currently queued """
+    # get queue item
+    qu = queue.find_one({'USER_ID' : user_id})
+    return flask.jsonify({
+        'STATUS' : 'QUEUED',
+        'MATCH_TAG' : qu['MATCH_TAG'],
+        'TIME_LEFT' : qu['TIME_LEFT']
+        })
 
-def sanitize_loc(loc):
-    loc['LONGITUDE'] = float(loc['LONGITUDE'])
-    loc['LATITUDE'] = float(loc['LATITUDE'])
-    return loc
+def open_response(user_id):
+    """ Response if user is currently in a lobby and open """
+    lobby = lobbies.find_one({'USER_ID' : user_id})
+    # others in the lobby
+    others = []
+    for user in lobbies.find({'MATCH_ID' : lobby['MATCH_ID']}, upserv=False, multi=True):
+        if user['USER_ID'] != user_id:
+            others.append(user)
 
-def sanitize_tag(tag):
-    return str(tag).lower()
+    return flask.jsonify({
+        'STATUS' : 'OPEN',
+        'OTHERS' : others,
+        'TIME_LEFT' : lobby['TIME_LEFT']
+        })
+
+def accepted_response(user_id):
+    """ Response if user is currently in a lobby and open """
+    lobby = lobbies.find_one({'USER_ID' : user_id})
+    # others in the lobby
+    others = []
+    for user in lobbies.find({'MATCH_ID' : lobby['MATCH_ID']}, upserv=False, multi=True):
+        if user['USER_ID'] != user_id:
+            others.append(user)
+
+    return flask.jsonify({
+        'STATUS' : 'ACCEPTED',
+        'OTHERS' : others,
+        'TIME_LEFT' : lobby['TIME_LEFT']
+        })
+
+def running_response(user_id):
+    """ Response if user is in a running match """
+    match = matches.find_one({'USER_ID' : user_id})
+    # others in the lobby
+    others = []
+    for user in matches.find({'MATCH_ID' : lobby['MATCH_ID']}, upserv=False, multi=True):
+        if user['USER_ID'] != user_id:
+            others.append(user)
+
+    return flask.jsonify({
+        'STATUS' : 'RUNNING',
+        'OTHERS' : others
+        })
+
+def finished_response(user_id):
+    """ Response if user has finished his match """
+    match = matches.find_one({'USER_ID' : user_id})
+    # others in the lobby
+    others = []
+    for user in matches.find({'MATCH_ID' : lobby['MATCH_ID']}, upserv=False, multi=True):
+        if user['USER_ID'] != user_id:
+            others.append(user)
+
+    return flask.jsonify({
+        'STATUS' : 'FINISHED',
+        'OTHERS' : others
+        })
+
+def cancelled_response(user_id):
+    """ Resposne if user is in cancelled state """
+    user = users.find_one({'USER_ID' : user_id})
+    return flask.jsonify({
+        'STATUS' : 'CANCELLED',
+        'SERVERMESSAGE' : user['SERVERMESSAGE']
+        })
+
+def user_response(user_id):
+    """ Generates a response dependent on the current user state """
+    user = users.find_one({'USER_ID':user_id})
+    # creates a response depending on the state of the user
+    state = user['STATE']
+    # switch statement
+    return {
+        'OFFLINE' : offline_response(user_id),
+        'QUEUED' : queued_response(user_id),
+        'OPEN' : open_response(user_id),
+        'ACCEPTED' : accepted_response(user_id),
+        'RUNNING' : running_response(user_id),
+        'FINISHED' : finished_response(user_id),
+        'CANCELLED' : cancelled_response(user_id)
+    }[state]
+
+@app.route("/state/<user_id>")
+def get_userstate(user_id):
+    """ Returns the state of the given user so the client can reconstruct the session """
+    return user_response(user_id)
+
+@app.route("/search/<tag>")
+def get_tag(tag):
+    """ Returns tags similar to the given tag """
+
+    app.logger.info("/search/"+str(tag))
+    app.logger.info(data)
+
+    match_tag = sanitize_tag(tag)  # bier,kaffee,pizza,kochen
+
+    foundtags = tags.find({'MATCH_TAG' : {'$regex': '.*'+match_tag+'.*'}})
+
+    result = []
+    for tag in foundtags:
+        result.append(tag['MATCH_TAG'])
+
+    # TODO: fuzzy search
+    return flask.jsonify({'RESULTS' : result})
 
 def try_to_match_user(user_id):
     # find the nearest other queues within 1 km
-    local_matches = matches(user_id)
+    local_matches = queue(user_id)
     if (local_matches.count() >= 3):
         # generatue UID
         uid = ObjectId()
         # remove them
         for qu in local_matches:
+            # Remove queue entry
             queue.remove(qu)
+
+            # Create lobby entry
             qu['STATUS'] = 'OPEN'
             qu['MATCH_ID'] = uid
             lobbies.insert(qu)
 
-            # Update 
+            # Update user
             users.update({
                 'USER_ID' : qu['USER_ID']}, {
                 '$set' : {
-                    'STATUS' : 'LOBBY'
+                    'STATUS' : 'OPEN'
                 }})
 
-        return {'STATUS':'MATCH_FOUND'} # new lobby object
-    else:
-        return {'STATUS':'WAIT'}
 
-@app.route("/queue", methods=['POST'])
+@app.route("/queue", methods="POST")
 def post_queue():
+    """ Enqueues the user, create him if he does not exist yet, and adds the tag to the known tags"""
     data = json.loads(request.data)
 
     app.logger.info("/queue")
     app.logger.info(data)
 
-    user_id = data['USER_ID']
-    match_tag = sanitize_tag(data['MATCH_TAG'])  # bier,kaffee,pizza,kochen
-    time_left = data['TIME_LEFT']  
-
+    # Create the user if he does not exist yet
     user = users.find_one({'USER_ID' : user_id})
     if user is None:
         user = {
             'USER_ID' : user_id,
             'LOC' : sanitize_loc(data['LOC']),
             'USER_NAME' : data['USER_NAME'],
-            'STATUS' : 'QUEUED'
+            'STATE' : 'OFFLINE', # initially offline, set to queued later!
+            'SERVERMESSAGE' : ''
             }
-        app.logger.info("Inserting user" + user['USER_NAME'])
+        app.logger.info("Inserting user " + user['USER_NAME'])
         users.insert(user)
     else:
         # Update 
@@ -159,195 +259,139 @@ def post_queue():
                 'USER_NAME' : data['USER_NAME']
             }})
 
-    # if the user is in the lobby, notify him that he is found
-    if user['STATUS'] == 'LOBBY':
-        return flask.jsonify({'STATUS':'MATCH_FOUND'})
+    # If the user is in offline mode, create queue and set user state to queued
+    if (user['STATE'] == 'OFFLINE'):
+        queue.insert({'USER_ID' : user_id,'TIME_LEFT' : time_left, 'MATCH_TAG' : match_tag, 'LOC' : sanitize_loc(data['LOC'])})
+        users.update({'USER_ID':user['USER_ID']}, {'STATE' : 'QUEUED'})
 
-    # if the user was offline, he is now online
-    if user['STATUS'] == 'OFFLINE':
-        users.update({
-            'USER_ID' : user_id
-            }, {'$set' : {'STATUS':'QUEUED'}})
+    # If he is already queued, update the queue entry
+    if (user['STATE'] == 'QUEUED'):
+        queue.update({'USER_ID' : user_id}, {'$set' : {'TIME_LEFT' : time_left, 'MATCH_TAG' : match_tag, 'LOC' : sanitize_loc(data['LOC'])}})
 
-    # if he was offline or queued, create or update the queue
-    if user['STATUS'] in ['OFFLINE', 'QUEUED']:
-        # update queue
-        if queue.find_one({'USER_ID' : user_id}) is None:
-            queue.insert({'USER_ID' : user_id,'TIME_LEFT' : time_left, 'MATCH_TAG' : match_tag, 'LOC' : sanitize_loc(data['LOC'])})
-        else:
-            queue.update({'USER_ID' : user_id}, {'$set' : {'TIME_LEFT' : time_left, 'MATCH_TAG' : match_tag, 'LOC' : sanitize_loc(data['LOC'])}})
+    # Update the geolocation index
+    queue.ensure_index([('LOC', pymongo.GEO2D)])
+
+    # Try to match the users
+    try_to_match(user['USER_ID'])
+
+    # Create response dependent on user state
+    return user_response(user['USER_ID'])
+
+@app.route("/cancel", methods="POST")
+def post_cancel():
+    """ Cancels, if allowed. """
+    data = json.loads(request.data)
+
+    app.logger.info("/queue")
+    app.logger.info(data)
+    user_id = data['USER_ID']
+
+    user = users.find_one({'USER_ID' : user_id})
+
+    if user['STATE'] == 'QUEUED':
+        # set state to cancelled
+        users.update({'USER_ID' : user['USER_ID']}, {'STATUS' : 'CANCELLED'})
+        # remove queue entry
+        queue.remove({'USER_ID' : user['USER_ID']})
+
+    if user['STATE'] == 'OPEN':
+        match_id = queue.find_one({'USER_ID' : user['USER_ID']})['MATCH_ID']
+
+        # get user id_s
+        u = []
+        for queue_entry in queue.find({'MATCH_ID' : match_id}):
+            u.append(queue_entry['USER_ID'])
+        # remove queue entries
+        queue.remove({'MATCH_ID' : match_id})
+        # set user states to cancelled and message accordingly
+        users.update({'USER_ID' : {'$in' : u}}, {'STATUS' : 'CANCELLED', 'SERVERMESSAGE' : 'Ein Nutzer hat das Match abgebrochen :('})
     
-        # update the geolocation index
-        queue.ensure_index([('LOC', pymongo.GEO2D)])
+    # else, do nothing.
 
-        # try to match
-        return flask.jsonify( try_to_match_user(user_id) )
+    return user_response(user['USER_ID'])
 
-    # if we arrive here, something went wrong
-    return flask.jsonify({'STATUS':'INVALID'})
-
-@app.route("/finish"):
-def finish():
-    """ Flag user that he has finished / left the match. """
-    # flag user match
+@app.route("/accept", methods="POST")
+def post_accept():
+    """ The user accepts a match """
     data = json.loads(request.data)
     user_id = data['USER_ID']
 
-    matches.update({'USER_ID':user_id}, {'$set':{'STATUS':'FINISHED'}})
-
-    # flag user that he has an unevaluated match now
-    users.update({'USER_ID':user_id}, {'$set':{'STATUS':'UNEVALUATED'}})
-
-    return jsonify({'STATUS':'FINISHED'})
-
-@app.route("/evaluate"):
-def evaluate():
-    """ Retrieve the evaluation """
-    evaluation = json.loads(request.data)
-    user_id = evaluation['USER_ID']
-
-    # create evaluation
-    evaluations.insert(evaluation)
-
-    # flag user offline
-    users.update({'USER_ID':user_id}, {'$set':{'STATUS':'OFFLINE'}})
-
-    # delete user match
-    matches.remove({'USER_ID':user_id})
-
-    return jsonify({'STATUS':'EVALUATED'})
-
-@app.route("/lobby", methods=['POST'])
-def show_lobby():
-    """ Return information about the accept state of the other two people """
-    data = json.loads(request.data)
-    user_id = data['USER_ID']
-
-    app.logger.info("/lobby")
+    app.logger.info("/queue")
     app.logger.info(data)
 
-    lobby = lobbies.find_one({'USER_ID' : user_id})
-    if lobby is not None:
-        group = lobbies.find({'MATCH_ID' : lobby['MATCH_ID']})
-        others = []
-        for person in group:
-            if person['USER_ID'] != user_id:
-                others.append(person)
-        return flask.jsonify({'STATUS':lobby['STATUS'], 'OTHERS' : others })
-    else:
-        return flask.jsonify({'STATUS':'INVALID'})
+    # Set his state to accepted
+    users.update({'USER_ID' : user_id}, {'STATE' : 'ACCEPTED'})
 
-@app.route("/accept", methods=['POST'])
-def accept():
-    """ Accept and simultaneously check if everyone has accepted already """
+    # get user's match ide
+    match_id = lobbies.find_one({'USER_ID' : user_id})['MACH_ID']
 
+    # check if everone in the lobby has accepted
+    group = lobbies.find({'MATCH_ID' : match_id})
+    accepted = True
+    user_ids = []
+    for person in group:
+        user_ids.append(person['USER_ID'])
+        app.logger.info(person['USER_ID'] + " - STATUS: " +person['STATUS'])
+        if person['STATUS']  != 'ACCEPTED':
+            accepted = False
+
+    if accepted:
+        # If everyone has accepted, set them to running,
+        users.update({'USER_ID' : {'$in' : user_ids}}, {'STATE' : 'RUNNING'}, upsert=False, multi=True)
+
+        # Delete lobby entries
+        lobbies.remove({'MATCH_ID' : match_id})
+
+        # And create match entries
+        matches.insert({'USER_ID' : user_id, 'MATCH_ID' : match_id, 'STATE' : 'RUNNING'})
+
+    # create user response
+    return user_response(user_id)
+
+@app.route("/chat/<match_id>", methods="GET")
+def get_chat():
+    """ Returns the chat of the match """
+    return None
+
+@app.route("/chat/<match_id>", methods="POST")
+def post_chat():
+    """ The user sends a chat message """
+    # TODO
+    return None
+
+@app.route("/finish", methods="POST")
+def post_finish():
     data = json.loads(request.data)
     user_id = data['USER_ID']
 
-    app.logger.info("/accept")
-    app.logger.info(data)
-    # is the user in a lobby? 
-    lobby = lobbies.find_one({'USER_ID' : user_id})
-    if lobby is not None:
-        match_id = lobby['MATCH_ID']
-        group = lobbies.find({'MATCH_ID' : match_id})
-        others = []
-        for person in group:
-            if person['USER_ID'] != user_id:
-                others.append(person)
-        group.rewind()
+    user = users.find_one({'USER_ID' : user_id})
 
-        # if already running, say so:
-        if matches.find_one({'USER_ID' : user_id}):
-            return flask.jsonify({'STATUS':'RUNNING', 'OTHERS':others})
+    if user['STATE'] == 'RUNNING':
+        # set user state to finished
+        users.update({'USER_ID' : user_id}, {'STATE' : 'FINISHED'})
+        # set match entry to finished
+        matches.update({'USER_ID' : user_id}, {'STATE' : 'FINISHED'})
 
-        # set flag to accepted
-        lobbies.update({'USER_ID' : user_id},
-        {    
-            '$set' : {
-                'STATUS' : 'ACCEPTED'
-            }
-        })
+    return user_response(user_id)
 
-        # check if everone has accepted
-        group = lobbies.find({'MATCH_ID' : match_id})
-        accepted = True
-        user_ids = []
-        for person in group:
-            user_ids.append(person['USER_ID'])
-            app.logger.info(person['USER_ID'] + " - STATUS: " +person['STATUS'])
-            if person['STATUS']  != 'ACCEPTED':
-                accepted = False
-        group.rewind()
-
-        # if they all have accepted, remove them and add them to the running matches
-        if (accepted):
-            users.update({'USER_ID' : {'$in' : user_ids}}, {'$set' : {'STATUS':'RUNNING'}}, upsert=False, multi=True)
-            for person in group:
-                matches.insert({'USER_ID':person['USER_ID'], 'MATCH_ID':person['MATCH_ID'], 'MATCH_TAG':person['MATCH_TAG']})
-            # remove all from lobby
-            lobbies.remove({'MATCH_ID' : match_id })
-            return flask.jsonify({'STATUS':'RUNNING', 'OTHERS':others})
-        else:
-            app.logger.info("Not everyone has accepted ...")
-            return flask.jsonify({'STATUS':'OPEN', 'OTHERS':others})
-
-    # if we arrive here, something went wrong.
-    return flask.jsonify( { 'STATUS' : 'INVALID' } )
-
-
-@app.route("/addtag", methods=['POST'])
-def post_add_tag():
+@app.route("/evaluate", methods="POST")
+def post_evaluation():
     data = json.loads(request.data)
     user_id = data['USER_ID']
 
+    user = users.find_one({'USER_ID' : user_id})
 
-    app.logger.info("/addtag")
-    app.logger.info(data)
+    # Only accept evaluation if in finished state
+    if user['STATE'] == 'FINISHED':
+        # set user state to offline
+        # set user state to finished
+        users.update({'USER_ID' : user_id}, {'STATE' : 'OFFLINE'})
 
-    if users.find_one({'USER_ID' : user_id}) is None:
-        users.insert({'USER_ID' : user_id, 'LOC' : sanitize_loc(data['LOC']), 'USER_NAME' : data['USER_NAME']})
-    else:
-        users.update({'USER_ID' : user_id}, {'$set' : {'LOC' : sanitize_loc(data['LOC']), 'USER_NAME' : data['USER_NAME']}})
-        
+        # remove match entry
+        matches.remove({'USER_ID' : user_id})
 
-    match_tag = sanitize_tag(data['MATCH_TAG'])
-    # if the user is not enqueued right now, add him/her
-    
-    if tags.find_one({'MATCH_TAG' : match_tag}) is None:
-        tags.insert({ 'MATCH_TAG' : match_tag })
-
-    return flask.jsonify({'STATUS':'OKAY'})
-
-@app.route("/searchtag", methods=['POST'])
-def post_search_tag():
-    data = json.loads(request.data)
-
-
-    app.logger.info("/searchtag")
-    app.logger.info(data)
-
-    match_tag = sanitize_tag(data['MATCH_TAG'])  # bier,kaffee,pizza,kochen
-
-    user_id = data['USER_ID']
-
-    if not "USER_NAME" in data.keys():
-        data['USER_NAME'] = "server got no username!"
-
-    if users.find_one({'USER_ID' : user_id}) is None:
-        users.insert({'USER_ID' : user_id, 'LOC' : sanitize_loc(data['LOC']), 'USER_NAME' : data['USER_NAME'], 'STATUS':'OFFLINE'})
-    else:
-        users.update({'USER_ID' : user_id}, {'$set' : {'LOC' : sanitize_loc(data['LOC']), 'USER_NAME' : data['USER_NAME']}})
-    
-
-    foundtags = tags.find({'MATCH_TAG' : {'$regex': '.*'+match_tag+'.*'}})
-
-    result = []
-    for tag in foundtags:
-        result.append(tag['MATCH_TAG'])
-
-    # TODO: fuzzy search
-    return flask.jsonify({'RESULTS' : result})
+        # insert evaluation entry
+        evaluations.insert({'USER_ID' : user_id, 'EVALUATION' : data['EVALUATION']})
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')

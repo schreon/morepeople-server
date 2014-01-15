@@ -38,11 +38,11 @@
 									<td><input class="form-control" type="text" ng-model="mockUser.MATCH_TAG"></input></td>
 									<td>
 										<button class="btn btn-primary" ng-click="queue(mockUser);">queue</button>
-										<button class="btn btn-danger">cancel</button>
+										<button class="btn btn-danger" ng-click="cancel(mockUser);">cancel</button>
 										<button class="btn btn-success" ng-click="accept(mockUser);">accept</button>
-										<button class="btn btn-default">chat</button>
-										<button class="btn btn-info">finish</button>
-										<button class="btn btn-warning">evaluation</button>
+										<button class="btn btn-default" ng-click="chat(mockUser);">chat</button>
+										<button class="btn btn-info" ng-click="finish(mockUser);">finish</button>
+										<button class="btn btn-warning" ng-click="evaluate(mockUser);">evaluate</button>
 									</td>
 								</tr>
 							</tobdy>

@@ -42,6 +42,27 @@ function StatusConroller($scope, $timeout, $http, Data) {
 		})
 	}
 
+	$scope.chat = function(user) {
+		$http.post("chat", user).then(function(response){
+			console.log("chat->response");
+			console.log(response.data);
+		})
+	}
+
+	$scope.finish = function(user) {
+		$http.post("finish", user).then(function(response){
+			console.log("finish->response");
+			console.log(response.data);
+		})
+	}
+
+	$scope.evaluate = function(user) {
+		$http.post("evaluate", user).then(function(response){
+			console.log("evaluate->response");
+			console.log(response.data);
+		})
+	}
+
 	$scope.data = [];
 	$scope.buffer = [];
     (function tick() {

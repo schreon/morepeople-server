@@ -17,7 +17,6 @@ static_folder = os.path.join('public')
 app = Flask("MatchmakingClient",
             static_folder=static_folder, static_url_path='')
 
-
 from json import JSONEncoder
 from bson.objectid import ObjectId
 
@@ -51,14 +50,14 @@ tags = db['tags']
 users = db['users']
 queue = db['queue']
 lobbies = db['lobbies']
-running_matches = db['running_matches']
+matches = db['matches']
 evaluations = db['evaluations']
 
 users.remove({})
 queue.remove({})
 tags.remove({})
 lobbies.remove({})
-running_matches.remove({})
+matches.remove({})
 evaluations.remove({})
 
 tags.insert({ 'MATCH_TAG' : "kaffee" })
@@ -82,7 +81,7 @@ def get_status():
         tags=[tag for tag in tags.find({})],
         queue=[qu for qu in queue.find({})], 
         lobbies=[lobby for lobby in lobbies.find({})], 
-        running_matches=[match for match in running_matches.find({})], 
+        matches=[match for match in matches.find({})], 
         evaluations=[evaluation for evaluation in evaluations.find({})]
     ))
 
@@ -187,6 +186,37 @@ def post_queue():
     # if we arrive here, something went wrong
     return flask.jsonify({'STATUS':'INVALID'})
 
+@app.route("/finish"):
+def finish():
+    """ Flag user that he has finished / left the match. """
+    # flag user match
+    data = json.loads(request.data)
+    user_id = data['USER_ID']
+
+    matches.update({'USER_ID':user_id}, {'$set':{'STATUS':'FINISHED'}})
+
+    # flag user that he has an unevaluated match now
+    users.update({'USER_ID':user_id}, {'$set':{'STATUS':'UNEVALUATED'}})
+
+    return jsonify({'STATUS':'FINISHED'})
+
+@app.route("/evaluate"):
+def evaluate():
+    """ Retrieve the evaluation """
+    evaluation = json.loads(request.data)
+    user_id = evaluation['USER_ID']
+
+    # create evaluation
+    evaluations.insert(evaluation)
+
+    # flag user offline
+    users.update({'USER_ID':user_id}, {'$set':{'STATUS':'OFFLINE'}})
+
+    # delete user match
+    matches.remove({'USER_ID':user_id})
+
+    return jsonify({'STATUS':'EVALUATED'})
+
 @app.route("/lobby", methods=['POST'])
 def show_lobby():
     """ Return information about the accept state of the other two people """
@@ -228,7 +258,7 @@ def accept():
         group.rewind()
 
         # if already running, say so:
-        if running_matches.find_one({'USER_ID' : user_id}):
+        if matches.find_one({'USER_ID' : user_id}):
             return flask.jsonify({'STATUS':'RUNNING', 'OTHERS':others})
 
         # set flag to accepted
@@ -254,7 +284,7 @@ def accept():
         if (accepted):
             users.update({'USER_ID' : {'$in' : user_ids}}, {'$set' : {'STATUS':'RUNNING'}}, upsert=False, multi=True)
             for person in group:
-                running_matches.insert({'USER_ID':person['USER_ID'], 'MATCH_ID':person['MATCH_ID'], 'MATCH_TAG':person['MATCH_TAG']})
+                matches.insert({'USER_ID':person['USER_ID'], 'MATCH_ID':person['MATCH_ID'], 'MATCH_TAG':person['MATCH_TAG']})
             # remove all from lobby
             lobbies.remove({'MATCH_ID' : match_id })
             return flask.jsonify({'STATUS':'RUNNING', 'OTHERS':others})

@@ -170,7 +170,7 @@ def finished_response(user):
     match = matches.find_one({'USER_ID' : user_id})
     # others in the lobby
     others = []
-    for user in matches.find({'MATCH_ID' : lobby['MATCH_ID']}, upserv=False, multi=True):
+    for user in matches.find({'MATCH_ID' : match['MATCH_ID']}, upserv=False, multi=True):
         if user['USER_ID'] != user_id:
             others.append(user)
 
@@ -488,12 +488,13 @@ def post_finish():
 
     user = users.find_one({'USER_ID' : user_id})
     app.logger.info("finish user " + str(user_id))
+    app.logger.info("finish user state " + str(user['STATE']))
     if user['STATE'] == 'RUNNING':
         # set user state to finished
-        users.update({'USER_ID' : user_id},{'$set', {'STATE' : 'FINISHED'}})
+        users.update({'USER_ID' : user_id}, {'$set': {'STATE' : 'FINISHED'}})
         # set match entry to finished
-        matches.update({'USER_ID' : user_id}, {'$set', {'STATE' : 'FINISHED'}})
-
+        matches.update({'USER_ID' : user_id}, {'$set': {'STATE' : 'FINISHED'}})
+        pass
     return user_response(user_id)
 
 @app.route("/evaluate", methods=["POST"])
@@ -507,7 +508,7 @@ def post_evaluation():
     if user['STATE'] == 'FINISHED':
         # set user state to offline
         # set user state to finished
-        users.update({'USER_ID' : user_id}, {'$set', {'STATE' : 'OFFLINE'}})
+        users.update({'USER_ID' : user_id}, {'$set': {'STATE' : 'OFFLINE'}})
 
         # remove match entry
         matches.remove({'USER_ID' : user_id})

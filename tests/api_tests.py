@@ -283,5 +283,30 @@ class FlaskAppTestCase(unittest.TestCase):
         self.assertTrue(server.matches.find_one({'USER_ID' : '1'}) is not None)
         self.assertTrue(server.matches.find_one({'USER_ID' : '2'}) is not None)
         self.assertTrue(server.matches.find_one({'USER_ID' : '3'}) is not None)
+
+        # finish
+        data = {
+            'USER_ID' : '1',
+            'USER_NAME' : 'server_test_user 3',
+            'MATCH_TAG' : "beer",
+            'TIME_LEFT' : 7200,
+            'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
+            }
+        response = self.app.post('/finish', headers, data=json.dumps(data)) 
+        response = json.loads(response.data)      
+        self.assertTrue(response['STATE'] == 'FINISHED')
+
+        # evaluate
+        data = {
+            'USER_ID' : '1',
+            'USER_NAME' : 'server_test_user 3',
+            'EVALUATION' : {'foo':'bar'}
+            'TIME_LEFT' : 7200,
+            'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
+            }
+        response = self.app.post('/finish', headers, data=json.dumps(data)) 
+        response = json.loads(response.data)      
+        self.assertTrue(response['STATE'] == 'FINISHED')
+
 if __name__ == '__main__':
     unittest.main()

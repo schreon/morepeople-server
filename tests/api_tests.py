@@ -300,13 +300,13 @@ class FlaskAppTestCase(unittest.TestCase):
         data = {
             'USER_ID' : '1',
             'USER_NAME' : 'server_test_user 3',
-            'EVALUATION' : {'foo':'bar'}
+            'EVALUATION' : {'foo':'bar'},
             'TIME_LEFT' : 7200,
             'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
             }
-        response = self.app.post('/finish', headers, data=json.dumps(data)) 
+        response = self.app.post('/evaluate', headers, data=json.dumps(data)) 
         response = json.loads(response.data)      
-        self.assertTrue(response['STATE'] == 'FINISHED')
+        self.assertTrue(response['STATE'] == 'OFFLINE')
 
 if __name__ == '__main__':
     unittest.main()

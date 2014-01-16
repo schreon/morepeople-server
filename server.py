@@ -495,6 +495,8 @@ def post_finish():
         # set match entry to finished
         matches.update({'USER_ID' : user_id}, {'$set': {'STATE' : 'FINISHED'}})
         pass
+
+    app.logger.info("sucessfully finished user " + str(user_id))
     return user_response(user_id)
 
 @app.route("/evaluate", methods=["POST"])
@@ -516,5 +518,6 @@ def post_evaluation():
         # insert evaluation entry
         evaluations.insert({'USER_ID' : user_id, 'EVALUATION' : data['EVALUATION']})
 
+    return user_response(user_id)
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')

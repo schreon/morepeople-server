@@ -258,7 +258,7 @@ def get_tag():
 
 
     app.logger.info("sending results")
-    app.logger.info(results)
+    app.logger.info(result)
     # TODO: fuzzy search
     return flask.jsonify({'RESULTS' : result})
 

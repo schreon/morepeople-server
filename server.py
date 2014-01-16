@@ -125,6 +125,7 @@ def open_response(user):
 
     return flask.jsonify({
         'STATE' : 'OPEN',
+        'MATCH_TAG' : lobby['MATCH_TAG'],
         'OTHERS' : others,
         'TIME_LEFT' : lobby['TIME_LEFT']
         })
@@ -141,6 +142,7 @@ def accepted_response(user):
 
     return flask.jsonify({
         'STATE' : 'ACCEPTED',
+        'MATCH_TAG' : lobby['MATCH_TAG'],
         'OTHERS' : others,
         'TIME_LEFT' : lobby['TIME_LEFT']
         })

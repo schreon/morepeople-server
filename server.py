@@ -243,12 +243,11 @@ def get_userstate():
 def get_tag():
     """ Returns tags similar to the given tag """
 
-    app.logger.info("/search/"+str(tag))
+    app.logger.info("/search")
     data = json.loads(request.data)
 
     app.logger.info(data)
     tag = sanitize_tag(data['MATCH_TAG'])
-
     match_tag = sanitize_tag(tag)  # bier,kaffee,pizza,kochen
 
     foundtags = tags.find({'MATCH_TAG' : {'$regex': '.*'+match_tag+'.*'}})
@@ -257,6 +256,9 @@ def get_tag():
     for tag in foundtags:
         result.append(tag['MATCH_TAG'])
 
+
+    app.logger.info("sending results")
+    app.logger.info(results)
     # TODO: fuzzy search
     return flask.jsonify({'RESULTS' : result})
 

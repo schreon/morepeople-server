@@ -202,6 +202,7 @@ def user_response(user_id):
     # creates a response depending on the state of the user
     state = user['STATE']
     # switch statement
+    app.logger.info("User Response: " + user['USER_NAME'] + " is " + state)
     return response_map[state](user)
 
 @app.route("/state", methods=['POST'])

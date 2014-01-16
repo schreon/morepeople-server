@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*- 
 import flask
 from flask import Flask, make_response, request
 from flask.ext.restful import reqparse
@@ -74,7 +75,8 @@ def sanitize_loc(loc):
     return loc
 
 def sanitize_tag(tag):
-    return str(tag).lower()
+
+    return tag.decode('utf-8').lower()
 
 @app.route("/")
 def get_index():

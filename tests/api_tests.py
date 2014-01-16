@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*- 
 import unittest
 import inspect
 import server
@@ -56,14 +57,14 @@ class FlaskAppTestCase(unittest.TestCase):
     def test_search_tag(self):
         """ Test if tag is returned """
 
-        server.tags.insert({ 'MATCH_TAG' : "kaffee" })
+        server.tags.insert({ 'MATCH_TAG' : "spaß" })
 
-        self.assertTrue(server.tags.find_one({'MATCH_TAG' : 'kaffee'}) is not None)
+        self.assertTrue(server.tags.find_one({'MATCH_TAG' : 'spaß'}) is not None)
         # Generate multiple users
         users = []
         for idx in range(5):
             data = {
-                'MATCH_TAG' : "kaff",
+                'MATCH_TAG' : "spa",
                 'TIME_LEFT' : 7200,
                 'USER_ID' : 'idx_'+str(idx),
                 'USER_NAME' : 'server_test_user',
@@ -77,7 +78,8 @@ class FlaskAppTestCase(unittest.TestCase):
             # send request
             response = self.app.post('/search', headers, data=json.dumps(user))
             response = json.loads(response.data)
-            self.assertTrue('kaffee' in response['RESULTS'])
+            print response
+            self.assertTrue('spaß'.decode('utf-8') in response['RESULTS'])
 
     def test_enqueue_user(self):
         """ Test if client is correctly enqueued """

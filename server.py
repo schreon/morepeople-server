@@ -490,9 +490,9 @@ def post_finish():
 
     if user['STATE'] == 'RUNNING':
         # set user state to finished
-        users.update({'USER_ID' : user_id}, {'$set', {'STATE' : 'FINISHED'}})
+        users.find_and_modify(queue={'USER_ID' : user_id}, update={'$set', {'STATE' : 'FINISHED'}})
         # set match entry to finished
-        matches.update({'USER_ID' : user_id}, {'$set', {'STATE' : 'FINISHED'}})
+        matches.find_and_modify(queue={'USER_ID' : user_id}, update={'$set', {'STATE' : 'FINISHED'}})
 
     return user_response(user_id)
 

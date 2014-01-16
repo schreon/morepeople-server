@@ -487,12 +487,12 @@ def post_finish():
     user_id = data['USER_ID']
 
     user = users.find_one({'USER_ID' : user_id})
-    app.logger.info("finish user" + str(user_id))
+    app.logger.info("finish user " + str(user_id))
     if user['STATE'] == 'RUNNING':
         # set user state to finished
-        users.find_and_modify(queue={'USER_ID' : user_id}, update={'$set', {'STATE' : 'FINISHED'}})
+        users.update({'USER_ID' : user_id},{'$set', {'STATE' : 'FINISHED'}})
         # set match entry to finished
-        matches.find_and_modify(queue={'USER_ID' : user_id}, update={'$set', {'STATE' : 'FINISHED'}})
+        matches.update({'USER_ID' : user_id}, {'$set', {'STATE' : 'FINISHED'}})
 
     return user_response(user_id)
 

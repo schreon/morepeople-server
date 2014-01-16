@@ -76,7 +76,7 @@ def sanitize_loc(loc):
 
 def sanitize_tag(tag):
 
-    return tag.lower().encode('utf-8')
+    return tag.decode('utf-8').lower().encode('utf-8')
 
 @app.route("/")
 def get_index():

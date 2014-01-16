@@ -53,6 +53,32 @@ class FlaskAppTestCase(unittest.TestCase):
         response = self.app.get('/status')
         self.assertEqual(response.status_code, 200)
 
+    def test_search_tag(self):
+        """ Test if tag is returned """
+
+        server.tags.insert({ 'MATCH_TAG' : "kaffee" })
+
+        self.assertTrue(server.tags.find_one({'MATCH_TAG' : 'kaffee'}) is not None)
+        # Generate multiple users
+        users = []
+        for idx in range(5):
+            data = {
+                'MATCH_TAG' : "kaff",
+                'TIME_LEFT' : 7200,
+                'USER_ID' : 'idx_'+str(idx),
+                'USER_NAME' : 'server_test_user',
+                'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
+                }
+            users.append(data)
+
+        # Post enqueue requests to server
+        headers = [('Content-Type', 'application/json')]
+        for user in users:
+            # send request
+            response = self.app.post('/search', headers, data=json.dumps(user))
+            response = json.loads(response.data)
+            self.assertTrue('kaffee' in response['RESULTS'])
+
     def test_enqueue_user(self):
         """ Test if client is correctly enqueued """
         data = {

@@ -404,20 +404,21 @@ def post_cancel():
         queue.remove({'USER_ID' : user['USER_ID']})
 
     if user['STATE'] == 'OPEN':
-        match_id = queue.find_one({'USER_ID' : user['USER_ID']})['MATCH_ID']
+        lobby = lobbies.find_one({'USER_ID' : user_id})
+        match_id = lobby['MATCH_ID']
 
         # get user id_s
         u = []
-        for queue_entry in queue.find({'MATCH_ID' : match_id}):
-            u.append(queue_entry['USER_ID'])
-        # remove queue entries
-        queue.remove({'MATCH_ID' : match_id})
+        for lobby_entry in lobbies.find({'MATCH_ID' : match_id}):
+            u.append(lobby_entry['USER_ID'])
+        # remove match entries
+        lobbies.remove({'MATCH_ID' : match_id})
         # set user states to cancelled and message accordingly
         users.update({'USER_ID' : {'$in' : u}}, {'$set' : {'STATE' : 'CANCELLED', 'SERVERMESSAGE' : 'Ein Nutzer hat das Match abgebrochen :('}})
     
     # else, do nothing.
 
-    return user_response(user['USER_ID'])
+    return user_response(user_id)
 
 @app.route("/accept", methods=["POST"])
 def post_accept():

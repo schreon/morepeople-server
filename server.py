@@ -239,15 +239,15 @@ def get_userstate():
 
     return user_response(data['USER_ID'])
 
-@app.route("/search/", methods=['POST'])
+@app.route("/search", methods=['POST'])
 def get_tag():
     """ Returns tags similar to the given tag """
 
+    app.logger.info("/search/"+str(tag))
     data = json.loads(request.data)
 
-    tag = sanitize_tag(data['MATCH_TAG'])
-    app.logger.info("/search/"+str(tag))
     app.logger.info(data)
+    tag = sanitize_tag(data['MATCH_TAG'])
 
     match_tag = sanitize_tag(tag)  # bier,kaffee,pizza,kochen
 

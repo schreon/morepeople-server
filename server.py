@@ -312,6 +312,10 @@ def post_queue():
     time_left = data['TIME_LEFT']
     match_tag = sanitize_tag(data['MATCH_TAG'])
 
+    # add tag to database if not existent yet
+    if tags.find_one({'MATCH_TAG' : match_tag}) is None:
+        tags.insert({'MATCH_TAG' : match_tag})
+
     # Create the user if he does not exist yet
     user = users.find_one({'USER_ID' : user_id})
     if user is None:

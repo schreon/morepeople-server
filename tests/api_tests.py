@@ -1,14 +1,16 @@
 # -*- coding: utf-8 -*- 
+import os
 import unittest
 import inspect
 import server
 import json
-import os
+
 
 class FlaskAppTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(self):
+
         # chooses testing config, i.e. in-memory db:
         self.app = server.app.test_client()
         server.queue.remove({})
@@ -33,7 +35,6 @@ class FlaskAppTestCase(unittest.TestCase):
         for idx in range(100):
             data = {
                 'MATCH_TAG' : "beer",
-                'TIME_LEFT' : 7200,
                 'USER_ID' : 'idx_'+str(idx),
                 'USER_NAME' : 'server_test_user',
                 'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
@@ -65,7 +66,6 @@ class FlaskAppTestCase(unittest.TestCase):
         for idx in range(5):
             data = {
                 'MATCH_TAG' : "spa",
-                'TIME_LEFT' : 7200,
                 'USER_ID' : 'idx_'+str(idx),
                 'USER_NAME' : 'server_test_user',
                 'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
@@ -87,7 +87,6 @@ class FlaskAppTestCase(unittest.TestCase):
             'USER_ID' : '1234567',
             'USER_NAME' : 'server_test_user',
             'MATCH_TAG' : "beer",
-            'TIME_LEFT' : 7200,
             'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
             }
 
@@ -110,7 +109,6 @@ class FlaskAppTestCase(unittest.TestCase):
             'USER_ID' : '1',
             'USER_NAME' : 'server_test_user 1',
             'MATCH_TAG' : "beer",
-            'TIME_LEFT' : 7200,
             'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
             }
 

@@ -109,8 +109,7 @@ def queued_response(user):
     qu = queue.find_one({'USER_ID' : user_id})
     return flask.jsonify({
         'STATE' : 'QUEUED',
-        'MATCH_TAG' : qu['MATCH_TAG'],
-        'TIME_LEFT' : qu['TIME_LEFT']
+        'MATCH_TAG' : qu['MATCH_TAG']
         })
 
 def open_response(user):
@@ -126,8 +125,7 @@ def open_response(user):
     return flask.jsonify({
         'STATE' : 'OPEN',
         'MATCH_TAG' : lobby['MATCH_TAG'],
-        'OTHERS' : others,
-        'TIME_LEFT' : lobby['TIME_LEFT']
+        'OTHERS' : others
         })
 
 def accepted_response(user):
@@ -143,8 +141,7 @@ def accepted_response(user):
     return flask.jsonify({
         'STATE' : 'ACCEPTED',
         'MATCH_TAG' : lobby['MATCH_TAG'],
-        'OTHERS' : others,
-        'TIME_LEFT' : lobby['TIME_LEFT']
+        'OTHERS' : others
         })
 
 def running_response(user):
@@ -316,7 +313,6 @@ def post_queue():
 
     app.logger.info(data)
     user_id = data['USER_ID']
-    time_left = data['TIME_LEFT']
     match_tag = sanitize_tag(data['MATCH_TAG'])
 
     # add tag to database if not existent yet
@@ -347,12 +343,12 @@ def post_queue():
 
     # If the user is in offline mode, create queue and set user state to queued
     if (user['STATE'] == 'OFFLINE'):
-        queue.insert({'USER_ID' : user_id,'TIME_LEFT' : time_left, 'MATCH_TAG' : match_tag, 'LOC' : sanitize_loc(data['LOC'])})
+        queue.insert({'USER_ID' : user_id, 'MATCH_TAG' : match_tag, 'LOC' : sanitize_loc(data['LOC'])})
         users.update({'USER_ID':user['USER_ID']}, { '$set' : {'STATE' : 'QUEUED'}})
 
     # If he is already queued, update the queue entry
     if (user['STATE'] == 'QUEUED'):
-        queue.update({'USER_ID' : user_id}, {'$set' : {'TIME_LEFT' : time_left, 'MATCH_TAG' : match_tag, 'LOC' : sanitize_loc(data['LOC'])}})
+        queue.update({'USER_ID' : user_id}, {'$set' : {'MATCH_TAG' : match_tag, 'LOC' : sanitize_loc(data['LOC'])}})
 
 
     # refresh user

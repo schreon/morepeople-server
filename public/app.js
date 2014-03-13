@@ -28,7 +28,7 @@ function StatusConroller($scope, $timeout, $http, Data) {
 	}
 
 	$scope.queue = function(user) {
-		$http.post("queue", user).then(function(response){
+		$http.post("/queue", user).then(function(response){
 			console.log("queue->response");
 			console.log(response.data);
 		})
@@ -36,28 +36,28 @@ function StatusConroller($scope, $timeout, $http, Data) {
 
 
 	$scope.accept = function(user) {
-		$http.post("accept", user).then(function(response){
+		$http.post("/accept", user).then(function(response){
 			console.log("accept->response");
 			console.log(response.data);
 		})
 	}
 
 	$scope.chat = function(user) {
-		$http.post("chat", user).then(function(response){
+		$http.post("/chat", user).then(function(response){
 			console.log("chat->response");
 			console.log(response.data);
 		})
 	}
 
 	$scope.finish = function(user) {
-		$http.post("finish", user).then(function(response){
+		$http.post("/finish", user).then(function(response){
 			console.log("finish->response");
 			console.log(response.data);
 		})
 	}
 
 	$scope.evaluate = function(user) {
-		$http.post("evaluate", user).then(function(response){
+		$http.post("/evaluate", user).then(function(response){
 			console.log("evaluate->response");
 			console.log(response.data);
 		})

@@ -4,7 +4,7 @@ var app = angular.module('serverapp', ['ui.bootstrap', 'statusService']);
 
 angular.module('statusService', ['ngResource']).
     factory('Data', function ($resource) {
-        return $resource('status', {}, {
+        return $resource('/status', {}, {
             query: { method: 'GET', params: {}, isArray: false }
         });
     });

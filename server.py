@@ -31,7 +31,7 @@ app.json_encoder = MongoEncoder
 
 import logging
 from logging.handlers import RotatingFileHandler
-file_handler = RotatingFileHandler(os.environ['BOCK_LOG'], maxBytes=1024 * 1024 * 100, backupCount=20)
+file_handler = RotatingFileHandler(os.environ['MORE_PEOPLE_LOG'], maxBytes=1024 * 1024 * 100, backupCount=20)
 file_handler.setLevel(logging.INFO)
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 file_handler.setFormatter(formatter)
@@ -43,7 +43,7 @@ api = flask.ext.restful.Api(app)
 import pymongo
 from pymongo import MongoClient
 mongoclient, db, queue, tags = None, None, None, None
-url = os.environ['BOCK_MONGO_TEST_DB']
+url = os.environ['MORE_PEOPLE_DB']
 mongoclient = MongoClient(url)
 
 db = mongoclient['matchmaking']
@@ -67,8 +67,6 @@ tags.insert({ 'MATCH_TAG' : "kochen" })
 tags.insert({ 'MATCH_TAG' : "pizza" })
 tags.insert({ 'MATCH_TAG' : "schweinereien" })
 
-
-
 def sanitize_loc(loc):
     loc['LONGITUDE'] = float(loc['LONGITUDE'])
     loc['LATITUDE'] = float(loc['LATITUDE'])
@@ -79,11 +77,18 @@ def sanitize_tag(tag):
     return tag.lower()
 
 @app.route("/")
-def get_index():
-    app.logger.info("index.html request")
+def get_frontend():
+    app.logger.info("frontend.html request")
     # return static_folder
 
-    return app.send_static_file("index.html")
+    return app.send_static_file("frontend.html")
+
+@app.route("/backend/")
+def get_backend():
+    app.logger.info("backend.html request")
+    # return static_folder
+
+    return app.send_static_file("backend.html")
 
 @app.route("/status")
 def get_status():
@@ -302,6 +307,24 @@ def try_to_match(user_id):
                 }})
     else:
         app.logger.info("No Match")
+
+@app.route("/queue", methods=["GET"])
+def get_queue():
+    """ Returns list of nearby queues """
+
+    longitude = float(request.args['LON'])
+    latitude = float(request.args['LAT'])
+    radius = int(request.args['RAD'])
+
+    local_results = queue.find( {
+        "LOC" : {
+         "$maxDistance" : radius, # radius in meters
+         "$near" : [longitude, latitude]
+        }
+    } )
+
+    #return flask.jsonify({})
+    return flask.jsonify(dict(results=[result for result in local_results]))
 
 @app.route("/queue", methods=["POST"])
 def post_queue():

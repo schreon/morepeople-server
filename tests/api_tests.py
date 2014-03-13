@@ -132,7 +132,6 @@ class FlaskAppTestCase(unittest.TestCase):
             'USER_ID' : '2',
             'USER_NAME' : 'server_test_user 2',
             'MATCH_TAG' : "beer",
-            'TIME_LEFT' : 7200,
             'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
             }
 
@@ -154,7 +153,6 @@ class FlaskAppTestCase(unittest.TestCase):
             'USER_ID' : '3',
             'USER_NAME' : 'server_test_user 3',
             'MATCH_TAG' : "beer",
-            'TIME_LEFT' : 7200,
             'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
             }
 
@@ -186,7 +184,6 @@ class FlaskAppTestCase(unittest.TestCase):
             'USER_ID' : '4',
             'USER_NAME' : 'server_test_user 4',
             'MATCH_TAG' : "beer",
-            'TIME_LEFT' : 7200,
             'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
             }
         response = self.app.post('/queue', headers, data=json.dumps(data))
@@ -201,7 +198,6 @@ class FlaskAppTestCase(unittest.TestCase):
             'USER_ID' : '1',
             'USER_NAME' : 'server_test_user 1',
             'MATCH_TAG' : "beer",
-            'TIME_LEFT' : 7200,
             'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
             }
         response = self.app.post('/queue', headers, data=json.dumps(data))
@@ -214,7 +210,6 @@ class FlaskAppTestCase(unittest.TestCase):
             'USER_ID' : '2',
             'USER_NAME' : 'server_test_user 2',
             'MATCH_TAG' : "beer",
-            'TIME_LEFT' : 7200,
             'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
             }
         response = self.app.post('/queue', headers, data=json.dumps(data))
@@ -227,7 +222,6 @@ class FlaskAppTestCase(unittest.TestCase):
             'USER_ID' : '3',
             'USER_NAME' : 'server_test_user 3',
             'MATCH_TAG' : "beer",
-            'TIME_LEFT' : 7200,
             'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
             }
         response = self.app.post('/queue', headers, data=json.dumps(data))
@@ -241,7 +235,6 @@ class FlaskAppTestCase(unittest.TestCase):
             'USER_ID' : '1',
             'USER_NAME' : 'server_test_user 3',
             'MATCH_TAG' : "beer",
-            'TIME_LEFT' : 7200,
             'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
             }
         response = self.app.post('/accept', headers, data=json.dumps(data)) 
@@ -253,7 +246,6 @@ class FlaskAppTestCase(unittest.TestCase):
             'USER_ID' : '2',
             'USER_NAME' : 'server_test_user 3',
             'MATCH_TAG' : "beer",
-            'TIME_LEFT' : 7200,
             'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
             }
         response = self.app.post('/accept', headers, data=json.dumps(data)) 
@@ -265,7 +257,6 @@ class FlaskAppTestCase(unittest.TestCase):
             'USER_ID' : '3',
             'USER_NAME' : 'server_test_user 3',
             'MATCH_TAG' : "beer",
-            'TIME_LEFT' : 7200,
             'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
             }
         response = self.app.post('/accept', headers, data=json.dumps(data)) 
@@ -287,7 +278,6 @@ class FlaskAppTestCase(unittest.TestCase):
             'USER_ID' : '1',
             'USER_NAME' : 'server_test_user 3',
             'MATCH_TAG' : "beer",
-            'TIME_LEFT' : 7200,
             'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
             }
         response = self.app.post('/finish', headers, data=json.dumps(data)) 
@@ -299,12 +289,44 @@ class FlaskAppTestCase(unittest.TestCase):
             'USER_ID' : '1',
             'USER_NAME' : 'server_test_user 3',
             'EVALUATION' : {'foo':'bar'},
-            'TIME_LEFT' : 7200,
             'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
             }
         response = self.app.post('/evaluate', headers, data=json.dumps(data)) 
         response = json.loads(response.data)      
         self.assertTrue(response['STATE'] == 'OFFLINE')
+
+    def test_view_other_queues(self):
+
+        # Generate multiple users
+        users = []
+        for idx in range(100):
+            data = {
+                'MATCH_TAG' : "beer",
+                'USER_ID' : 'idx_'+str(idx),
+                'USER_NAME' : 'server_test_user',
+                'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
+                }
+            users.append(data)
+
+        # Post enqueue requests to server
+        headers = [('Content-Type', 'application/json')]
+        for user in users:
+
+            # should not be there initially
+            self.assertTrue(server.queue.find_one(user) is None)
+
+            # send request
+            response = self.app.post('/queue', headers, data=json.dumps(user))
+
+        # get status
+        response = self.app.get('/status')
+        self.assertEqual(response.status_code, 200)
+
+        # get queues
+        response = self.app.get('/queue?LON=100&LAT=100&RAD=1000')
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.data)   
+        self.assertTrue(len(response['results']) > 0)
 
 if __name__ == '__main__':
     unittest.main()

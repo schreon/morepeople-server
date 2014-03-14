@@ -67,15 +67,6 @@ tags.insert({ 'MATCH_TAG' : "kochen" })
 tags.insert({ 'MATCH_TAG' : "pizza" })
 tags.insert({ 'MATCH_TAG' : "schweinereien" })
 
-@app.route("/reset", methods=['GET'])
-def get_reset_server():
-    users.remove({})
-    queue.remove({})
-    tags.remove({})
-    lobbies.remove({})
-    matches.remove({})
-    evaluations.remove({})
-    return flask.jsonify({'STATUS' : 'OKAY'})
 
 def sanitize_loc(loc):
     loc['LONGITUDE'] = float(loc['LONGITUDE'])
@@ -112,6 +103,17 @@ def get_status():
         matches=[match for match in matches.find({})], 
         evaluations=[evaluation for evaluation in evaluations.find({})]
     ))
+
+
+@app.route("/reset")
+def get_reset_server():
+    users.remove({})
+    queue.remove({})
+    tags.remove({})
+    lobbies.remove({})
+    matches.remove({})
+    evaluations.remove({})
+    return flask.jsonify({'STATUS' : 'OKAY'})
 
 def offline_response(user):
     """ Response if user is offline """

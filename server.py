@@ -68,7 +68,7 @@ tags.insert({ 'MATCH_TAG' : "pizza" })
 tags.insert({ 'MATCH_TAG' : "schweinereien" })
 
 @app.route("/reset", methods=['GET'])
-def reset_server():
+def get_reset_server():
     users.remove({})
     queue.remove({})
     tags.remove({})

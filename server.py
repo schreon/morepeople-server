@@ -67,6 +67,16 @@ tags.insert({ 'MATCH_TAG' : "kochen" })
 tags.insert({ 'MATCH_TAG' : "pizza" })
 tags.insert({ 'MATCH_TAG' : "schweinereien" })
 
+@app.route("/reset", methods=['GET'])
+def reset_server():
+    users.remove({})
+    queue.remove({})
+    tags.remove({})
+    lobbies.remove({})
+    matches.remove({})
+    evaluations.remove({})
+    return flask.jsonify({'STATUS' : 'OKAY'})
+
 def sanitize_loc(loc):
     loc['LONGITUDE'] = float(loc['LONGITUDE'])
     loc['LATITUDE'] = float(loc['LATITUDE'])

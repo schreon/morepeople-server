@@ -412,6 +412,9 @@ def get_lobby():
         'USER_ID' : user_id
         })
 
+    if lobby is None:
+        return flask.jsonify(dict(participants=[]))
+
     match_id = lobby['MATCH_ID']
 
     match_lobbies = lobbies.find({

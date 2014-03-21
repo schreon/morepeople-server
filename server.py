@@ -402,6 +402,24 @@ def post_queue():
     # Create response dependent on user state
     return user_response(user_id)
 
+@app.route("/lobby", methods=['GET'])
+def get_lobby():
+    """ List participants in the lobby """
+
+    user_id = float(request.args['USER_ID'])
+
+    lobby = lobbies.find_one({
+        'USER_ID' : user_id
+        })
+
+    match_id = lobby['MATCH_ID']
+
+    match_lobbies = lobbies.find({
+        'MATCH_ID' : match_id
+        })
+
+    return flask.jsonify(dict(participantList=[match_lobby for match_lobby in match_lobbies]))
+
 @app.route("/confirmcancel", methods=['POST'])
 def post_cancelconfirm():
     """ Confirm the cancel. """

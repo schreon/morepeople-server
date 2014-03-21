@@ -406,7 +406,7 @@ def post_queue():
 def get_lobby():
     """ List participants in the lobby """
 
-    user_id = float(request.args['USER_ID'])
+    user_id = request.args['USER_ID']
 
     lobby = lobbies.find_one({
         'USER_ID' : user_id
@@ -422,7 +422,7 @@ def get_lobby():
     for match_lobby in match_lobbies:
         match_user = users.find_one({'USER_ID' : match_lobby['USER_ID']})
         participants.append(match_user)
-    
+
     return flask.jsonify(dict(participants=match_users))
 
 @app.route("/confirmcancel", methods=['POST'])

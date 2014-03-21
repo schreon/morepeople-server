@@ -377,7 +377,7 @@ def post_queue():
 
     # If the user is in offline mode, create queue and set user state to queued
     if (user['STATE'] == 'OFFLINE'):
-        queue.insert({'USER_ID' : user_id, 'MATCH_TAG' : match_tag, 'LOC' : sanitize_loc(data['LOC'])})
+        queue.insert({'USER_ID' : user_id, 'MATCH_TAG' : match_tag, 'LOC' : sanitize_loc(data['LOC']), 'USER_NAME' : user['USER_NAME']})
         users.update({'USER_ID':user['USER_ID']}, { '$set' : {'STATE' : 'QUEUED'}})
 
     # If he is already queued, update the queue entry
@@ -510,6 +510,8 @@ def post_accept():
             app.logger.info(person['USER_ID'] + " - STATE: " +person['STATE'])
             if person['STATE']  != 'ACCEPTED':
                 accepted = False
+
+        # TODO: send GCM message to all participants
 
         if accepted:
             app.logger.info("Inserting RUNNING MATCH")

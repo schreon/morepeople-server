@@ -418,7 +418,7 @@ def get_lobby():
         'MATCH_ID' : match_id
         })
 
-    return flask.jsonify(dict(participantList=[match_lobby for match_lobby in match_lobbies]))
+    return flask.jsonify(dict(participants=[match_lobby for match_lobby in match_lobbies]))
 
 @app.route("/confirmcancel", methods=['POST'])
 def post_cancelconfirm():

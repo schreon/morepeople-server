@@ -405,29 +405,30 @@ def post_queue():
 @app.route("/lobby", methods=['GET'])
 def get_lobby():
     """ List participants in the lobby """
-
     user_id = request.args['USER_ID']
+    try:
+        lobby = lobbies.find_one({
+            'USER_ID' : user_id
+            })
+        match_tag = lobby['MATCH_TAG']
 
-    lobby = lobbies.find_one({
-        'USER_ID' : user_id
-        })
-    match_tag = lobby['MATCH_TAG']
-    
-    if lobby is None:
-        return flask.jsonify(dict(participants=[]))
+        if lobby is None:
+            return flask.jsonify(dict(participants=[]))
 
-    match_id = lobby['MATCH_ID']
+        match_id = lobby['MATCH_ID']
 
-    match_lobbies = lobbies.find({
-        'MATCH_ID' : match_id
-        })
+        match_lobbies = lobbies.find({
+            'MATCH_ID' : match_id
+            })
 
-    participants = []
-    for match_lobby in match_lobbies:
-        match_user = users.find_one({'USER_ID' : match_lobby['USER_ID']})
-        participants.append(match_user)
+        participants = []
+        for match_lobby in match_lobbies:
+            match_user = users.find_one({'USER_ID' : match_lobby['USER_ID']})
+            participants.append(match_user)
 
-    return flask.jsonify(dict(participants=participants, MATCH_TAG=match_tag))
+        return flask.jsonify(dict(participants=participants, MATCH_TAG=match_tag))
+    except:
+        return user_response(user_id)
 
 @app.route("/confirmcancel", methods=['POST'])
 def post_cancelconfirm():

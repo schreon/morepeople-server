@@ -456,13 +456,13 @@ def post_cancel():
 
     user = users.find_one({'USER_ID' : user_id})
 
-    if user['STATE'] == 'QUEUED':
-        # set state to cancelled
-        users.update({'USER_ID' : user['USER_ID']}, {'$set' : {'STATE' : 'CANCELLED'}})
+
+    if user['STATE'] == 'QUEUED':        
         # remove queue entry
         queue.remove({'USER_ID' : user['USER_ID']})
 
     if user['STATE'] == 'OPEN':
+        # from open switch to CANCELLED state
         lobby = lobbies.find_one({'USER_ID' : user_id})
         match_id = lobby['MATCH_ID']
 
@@ -475,7 +475,10 @@ def post_cancel():
         # set user states to cancelled and message accordingly
         users.update({'USER_ID' : {'$in' : u}}, {'$set' : {'STATE' : 'CANCELLED', 'SERVERMESSAGE' : 'Ein Nutzer hat das Match abgebrochen :('}})
     
-    # else, do nothing.
+
+    # the cancelling user himself directly goes to OFFLINE
+    if user['STATE'] in ['QUEUED', 'OPEN']:  
+        users.update({'USER_ID' : user['USER_ID']}, {'$set' : {'STATE' : 'OFFLINE'}})
 
     return user_response(user_id)
 

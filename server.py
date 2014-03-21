@@ -76,11 +76,6 @@ def sanitize_loc(loc):
 def sanitize_tag(tag):
 
     return tag.lower()
-
-@app.route("/hello")
-def get_hello():
-    return "Hello world!"
-
 @app.route("/")
 def get_frontend():
     app.logger.info("frontend.html request")

@@ -423,7 +423,7 @@ def get_lobby():
         match_user = users.find_one({'USER_ID' : match_lobby['USER_ID']})
         participants.append(match_user)
 
-    return flask.jsonify(dict(participants=match_users))
+    return flask.jsonify(dict(participants=participants))
 
 @app.route("/confirmcancel", methods=['POST'])
 def post_cancelconfirm():

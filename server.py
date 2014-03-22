@@ -420,12 +420,6 @@ def post_queue():
     # Create response dependent on user state
     return user_response(user_id)
 
-@app.route("/lobby", methods=['GET'])
-def get_lobby():
-    """ List participants in the lobby """
-    user_id = request.args['USER_ID']
-    return user_response(user_id)
-
 @app.route("/confirmcancel", methods=['POST'])
 def post_cancelconfirm():
     """ Confirm the cancel. """
@@ -443,6 +437,31 @@ def post_cancelconfirm():
 
     return user_response(user_id)
 
+def find_or_create():
+    data = json.loads(request.data)
+    user_id = data['USER_ID']
+    user = users.find_one({'USER_ID' : user_id})
+    if user is None:
+        user = {
+            'USER_ID' : user_id,
+            'LOC' : sanitize_loc(data['LOC']),
+            'USER_NAME' : data['USER_NAME'],
+            'STATE' : 'OFFLINE', # initially offline
+            'SERVERMESSAGE' : ''
+            }
+        app.logger.info("Inserting user")
+        app.logger.info(user)
+        users.insert(user)
+    else:   
+        # Update 
+        users.update({'USER_ID' : user_id},
+           {
+            '$set' : {
+                'LOC' : sanitize_loc(data['LOC']),
+                'USER_NAME' : data['USER_NAME']
+            }})
+    return user
+
 @app.route("/cancel", methods=["POST"])
 def post_cancel():
     """ Cancels, if allowed. """
@@ -452,8 +471,7 @@ def post_cancel():
     app.logger.info(data)
     user_id = data['USER_ID']
 
-    user = users.find_one({'USER_ID' : user_id})
-
+    user = find_or_create()
 
     if user['STATE'] == 'QUEUED':        
         # remove queue entry

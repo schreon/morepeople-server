@@ -335,7 +335,7 @@ def get_queue():
     } )
 
     #return flask.jsonify({})
-    return flask.jsonify(dict(results=[result for result in local_results]))
+    return flask.jsonify(dict(SEARCHENTRIES=[result for result in local_results]))
 
 @app.route("/queue", methods=["POST"])
 def post_queue():

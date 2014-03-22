@@ -173,8 +173,8 @@ def accepted_response(user):
     res = lobbies.find({'MATCH_ID' : lobby['MATCH_ID']}, upserv=False, multi=True)
     if res is not None:
         for user in res:
-        if user['USER_ID'] != user_id:
-            others.append(user)
+            if user['USER_ID'] != user_id:
+                others.append(user)
 
     return flask.jsonify({
         'STATE' : 'ACCEPTED',

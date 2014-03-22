@@ -124,9 +124,20 @@ def queued_response(user):
     user_id = user['USER_ID']
     qu = queue.find_one({'USER_ID' : user_id})
 
+
+    data = json.loads(request.data)
+
+    local_results = queue.find( {
+        "LOC" : {
+         "$maxDistance" : 1000, # radius in meters TODO parametrize this
+         "$near" : sanitize_loc(data['LOC'])
+        }
+    } )
+
     return flask.jsonify({
         'STATE' : 'QUEUED',
-        'MATCH_TAG' : qu['MATCH_TAG']
+        'MATCH_TAG' : qu['MATCH_TAG'],
+        'SEARCHENTRIES' : local_results
         })
 
 def open_response(user):

@@ -138,7 +138,7 @@ def queued_response(user):
     return flask.jsonify({
         'STATE' : 'QUEUED',
         'MATCH_TAG' : qu['MATCH_TAG'],
-        'SEARCHENTRIES' : local_results
+        'SEARCHENTRIES' : [local_result for local_result in local_results]
         })
 
 def open_response(user):

@@ -152,9 +152,11 @@ def open_response(user):
     lobby = lobbies.find_one({'USER_ID' : user_id})
     # others in the lobby
     others = []
-    for user in lobbies.find({'MATCH_ID' : lobby['MATCH_ID']}, upserv=False, multi=True):
-        if user['USER_ID'] != user_id:
-            others.append(user)
+    res = lobbies.find({'MATCH_ID' : lobby['MATCH_ID']}, upserv=False, multi=True)
+    if res is not None:
+        for user in res:
+            if user['USER_ID'] != user_id:
+                others.append(user)
 
     return flask.jsonify({
         'STATE' : 'OPEN',
@@ -168,7 +170,9 @@ def accepted_response(user):
     lobby = lobbies.find_one({'USER_ID' : user_id})
     # others in the lobby
     others = []
-    for user in lobbies.find({'MATCH_ID' : lobby['MATCH_ID']}, upserv=False, multi=True):
+    res = lobbies.find({'MATCH_ID' : lobby['MATCH_ID']}, upserv=False, multi=True)
+    if res is not None:
+        for user in res:
         if user['USER_ID'] != user_id:
             others.append(user)
 

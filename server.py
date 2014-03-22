@@ -123,6 +123,7 @@ def queued_response(user):
     # get queue item
     user_id = user['USER_ID']
     qu = queue.find_one({'USER_ID' : user_id})
+
     return flask.jsonify({
         'STATE' : 'QUEUED',
         'MATCH_TAG' : qu['MATCH_TAG']

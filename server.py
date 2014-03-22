@@ -127,10 +127,11 @@ def queued_response(user):
 
     data = json.loads(request.data)
 
+    loc = [float(data['LOC']['LONGITUDE']), float(data['LOC']['LATITUDE'])]
     local_results = queue.find( {
         "LOC" : {
          "$maxDistance" : 1000, # radius in meters TODO parametrize this
-         "$near" : sanitize_loc(data['LOC'])
+         "$near" : loc
         }
     } )
 

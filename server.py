@@ -116,15 +116,12 @@ def get_reset_server():
 
 def offline_response(user):
     """ Response if user is offline """
-    return flask.jsonify({'STATE' : 'OFFLINE'})
+    return flask.jsonify({
+        'STATE' : 'OFFLINE',
+        'SEARCHENTRIES' : near_queues()
+        })
 
-def queued_response(user):
-    """ Response if user if currently queued """
-    # get queue item
-    user_id = user['USER_ID']
-    qu = queue.find_one({'USER_ID' : user_id})
-
-
+def near_queues():
     data = json.loads(request.data)
 
     loc = [float(data['LOC']['LONGITUDE']), float(data['LOC']['LATITUDE'])]
@@ -134,11 +131,19 @@ def queued_response(user):
          "$near" : loc
         }
     } )
+    
+    return [local_result for local_result in local_results]
+
+def queued_response(user):
+    """ Response if user if currently queued """
+    # get queue item
+    user_id = user['USER_ID']
+    qu = queue.find_one({'USER_ID' : user_id})
 
     return flask.jsonify({
         'STATE' : 'QUEUED',
         'MATCH_TAG' : qu['MATCH_TAG'],
-        'SEARCHENTRIES' : [local_result for local_result in local_results]
+        'SEARCHENTRIES' : near_queues()
         })
 
 def open_response(user):

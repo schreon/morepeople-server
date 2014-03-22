@@ -141,7 +141,7 @@ def open_response(user):
     return flask.jsonify({
         'STATE' : 'OPEN',
         'MATCH_TAG' : lobby['MATCH_TAG'],
-        'OTHERS' : others
+        'PARTICIPANTS' : others
         })
 
 def accepted_response(user):
@@ -157,7 +157,7 @@ def accepted_response(user):
     return flask.jsonify({
         'STATE' : 'ACCEPTED',
         'MATCH_TAG' : lobby['MATCH_TAG'],
-        'OTHERS' : others
+        'PARTICIPANTS' : others
         })
 
 def running_response(user):
@@ -406,30 +406,7 @@ def post_queue():
 def get_lobby():
     """ List participants in the lobby """
     user_id = request.args['USER_ID']
-    try:
-        lobby = lobbies.find_one({
-            'USER_ID' : user_id
-            })
-
-        if lobby is None:
-            return flask.jsonify(dict(participants=[]))
-
-        match_tag = lobby['MATCH_TAG']
-
-        match_id = lobby['MATCH_ID']
-
-        match_lobbies = lobbies.find({
-            'MATCH_ID' : match_id
-            })
-
-        participants = []
-        for match_lobby in match_lobbies:
-            match_user = users.find_one({'USER_ID' : match_lobby['USER_ID']})
-            participants.append(match_user)
-
-        return flask.jsonify(dict(participants=participants, MATCH_TAG=match_tag))
-    except:
-        return user_response(user_id)
+    return user_response(user_id)
 
 @app.route("/confirmcancel", methods=['POST'])
 def post_cancelconfirm():

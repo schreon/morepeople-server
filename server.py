@@ -241,7 +241,7 @@ def user_response(user_id):
     # switch statement
     app.logger.info("User Response: " + user['USER_NAME'] + " is " + state)
     return response_map[state](user)
-
+#
 @app.route("/state", methods=['POST'])
 def get_userstate():
     """ Returns the state of the given user so the client can reconstruct the session """

@@ -333,7 +333,7 @@ def try_to_match(user_id):
             qu['MATCH_ID'] = uid
             lobbies.insert(qu)
 
-            # Update user
+            # Update user #
             users.update({
                 'USER_ID' : qu['USER_ID']}, {
                 '$set' : {

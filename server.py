@@ -570,7 +570,7 @@ def post_accept():
                     app.logger.info("notifying:" + user_id)
                     users_to_notify.append(user_id)
 
-            # notify the users via gcm
+            # notify the users via gcm #
             app.logger.info("GCM")
             import gcm   
             if len(users_to_notify) > 0:

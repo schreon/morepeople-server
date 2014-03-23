@@ -340,13 +340,16 @@ def try_to_match(user_id):
                 }})
 
         # notify the users via gcm
+        app.logger.info("GCM")
         import gcm
         users_to_notify = []
         for qu in local_matches:
             # skip test users
-            if qu['USER_ID'].startswith(test):
-                continue
-            users_to_notify.append(qu['USER_ID'])
+            if qu['USER_ID'].startswith("test"):
+                app.logger.info("not notifying:" + qu['USER_ID'])
+            else:
+                users_to_notify.append(qu['USER_ID'])
+
         if len(users_to_notify) > 0:
             app.logger.info("Sending GCM to" + str(users_to_notify))
             gcm.send_to_users(users_to_notify, {'MP_MESSAGE_TYPE' : 'MATCH_FOUND'})

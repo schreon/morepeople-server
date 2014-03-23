@@ -367,10 +367,12 @@ def get_queue():
 
     local_results = queue.find( {
         "LOC" : {
-         "$maxDistance" : radius, # radius in meters
          "$near" : [longitude, latitude]
         }
-    } )
+    } ).limit(50)
+
+    #from bson.son import SON
+    #db.command(SON([('geoNear', 'queue'), ('near', [longitude, latitude])])
 
     #return flask.jsonify({})
     return flask.jsonify(dict(SEARCHENTRIES=[result for result in local_results]))

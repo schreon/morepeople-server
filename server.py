@@ -333,7 +333,7 @@ def try_to_match(user_id):
             ('query', {"MATCH_TAG" : res["MATCH_TAG"]}),
             ('near', [lat, lng]),
             ('num', 20),
-            ('maxDistance', 5.0 / DISTANCE_MULTIPLIER),
+            ('maxDistance', 5.0),
             ('spherical', True),
             ('distanceMultiplier', DISTANCE_MULTIPLIER) # for units in km
             ]))['results']

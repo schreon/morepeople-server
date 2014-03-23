@@ -365,17 +365,22 @@ def get_queue():
     latitude = float(request.args['LAT'])
     radius = int(request.args['RAD'])
 
-    local_results = queue.find( {
-        "LOC" : {
-         "$near" : [longitude, latitude]
-        }
-    } ).limit(50)
-
-    #from bson.son import SON
-    #db.command(SON([('geoNear', 'queue'), ('near', [longitude, latitude])])
+    # local_results = queue.find( {
+    #     "LOC" : {
+    #      "$near" : [longitude, latitude]
+    #     }
+    # } ).limit(50)
+    
+    from bson.son import SON
+    local_results = db.command(
+        SON([
+            ('geoNear', 'queue'),
+            ('near', [longitude, latitude]),
+            ('num', 20)
+            ]))['results']
 
     #return flask.jsonify({})
-    return flask.jsonify(dict(SEARCHENTRIES=[result for result in local_results]))
+    return flask.jsonify(dict(SEARCHENTRIES=local_results))
 
 @app.route("/queue", methods=["POST"])
 def post_queue():

@@ -124,15 +124,27 @@ def offline_response(user):
 def near_queues():
     data = json.loads(request.data)
 
-    loc = [float(data['LOC']['LONGITUDE']), float(data['LOC']['LATITUDE'])]
-    local_results = queue.find( {
-        "LOC" : {
-         "$maxDistance" : 1000, # radius in meters TODO parametrize this
-         "$near" : loc
-        }
-    } )
-    
-    return [local_result for local_result in local_results]
+    latitude = float(data['LOC']['LONGITUDE'])
+    longitude = float(data['LOC']['LATITUDE'])
+
+    from bson.son import SON
+    import math
+    local_results = db.command(
+        SON([
+            ('geoNear', 'queue'),
+            ('near', [latitude, longitude]),
+            ('num', 20),
+            ('spherical', True),
+            ('distanceMultiplier', (6371.0 * math.pi / 180.0)) # for units in km
+            ]))['results']
+
+    results = []
+    for local_result in local_results:
+        res = local_result['obj']
+        res['DISTANCE'] = local_result['dis']
+        results.append(res)
+
+    return results
 
 def queued_response(user):
     """ Response if user if currently queued """
@@ -309,15 +321,38 @@ def try_to_match(user_id):
         return;
     app.logger.info('try_to_match')
     app.logger.info(res)
-    local_matches = queue.find( {
-        "LOC" : {
-         "$maxDistance" : 1000, # 1km radius
-         "$near" : [float(res['LOC']['LONGITUDE']), float(res['LOC']['LATITUDE'])]
-        },
-        "MATCH_TAG" : res["MATCH_TAG"]
-    } )
 
-    if (local_matches.count() >= 3):
+    latitude = float(res['LOC']['LONGITUDE'])
+    longitude = float(res['LOC']['LATITUDE'])
+
+    from bson.son import SON
+    import math
+    local_results = db.command(
+        SON([
+            ('geoNear', 'queue'),
+            ('query', {"MATCH_TAG" : res["MATCH_TAG"]}),
+            ('near', [latitude, longitude]),
+            ('num', 20),
+            ('maxDistance', 5.0),
+            ('spherical', True),
+            ('distanceMultiplier', (6371.0 * math.pi / 180.0)) # for units in km
+            ]))['results']
+
+    local_matches = []
+    for local_result in local_results:
+        lres = local_result['obj']
+        lres['DISTANCE'] = local_result['dis']
+        local_matches.append(lres)
+
+    # local_matches = queue.find( {
+    #     "LOC" : {
+    #      "$maxDistance" : 1000, # 1km radius
+    #      "$near" : [float(res['LOC']['LONGITUDE']), float(res['LOC']['LATITUDE'])]
+    #     },
+    #     "MATCH_TAG" : res["MATCH_TAG"]
+    # } )
+
+    if (len(local_matches) >= 3):
         app.logger.info("!!! MATCH !!!")
         # generatue UID
         uid = ObjectId()
@@ -387,7 +422,7 @@ def get_queue():
         res = local_result['obj']
         res['DISTANCE'] = local_result['dis']
         results.append(res)
-    
+
     #return flask.jsonify({})
     return flask.jsonify(dict(SEARCHENTRIES=results))
 

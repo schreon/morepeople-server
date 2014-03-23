@@ -37,7 +37,7 @@ class FlaskAppTestCase(unittest.TestCase):
                 'MATCH_TAG' : "beer",
                 'USER_ID' : 'test_idx_'+str(idx),
                 'USER_NAME' : 'test__user',
-                'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
+                'LOC': {'LONGITUDE' : 40, 'LATITUDE' : 9 }
                 }
             users.append(data)
 
@@ -68,7 +68,7 @@ class FlaskAppTestCase(unittest.TestCase):
                 'MATCH_TAG' : "spa",
                 'USER_ID' : 'test_idx_'+str(idx),
                 'USER_NAME' : 'test__user',
-                'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
+                'LOC': {'LONGITUDE' : 40, 'LATITUDE' : 9 }
                 }
             users.append(data)
 
@@ -87,7 +87,7 @@ class FlaskAppTestCase(unittest.TestCase):
             'USER_ID' : 'test_1234567',
             'USER_NAME' : 'test__user',
             'MATCH_TAG' : "beer",
-            'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
+            'LOC': {'LONGITUDE' : 40, 'LATITUDE' : 9 }
             }
 
         headers = [('Content-Type', 'application/json')]
@@ -109,7 +109,7 @@ class FlaskAppTestCase(unittest.TestCase):
             'USER_ID' : 'test_1',
             'USER_NAME' : 'test__user 1',
             'MATCH_TAG' : "beer",
-            'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
+            'LOC': {'LONGITUDE' : 40, 'LATITUDE' : 9 }
             }
 
         headers = [('Content-Type', 'application/json')]
@@ -132,7 +132,7 @@ class FlaskAppTestCase(unittest.TestCase):
             'USER_ID' : 'test_2',
             'USER_NAME' : 'test__user 2',
             'MATCH_TAG' : "beer",
-            'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
+            'LOC': {'LONGITUDE' : 40, 'LATITUDE' : 9 }
             }
 
         headers = [('Content-Type', 'application/json')]
@@ -153,7 +153,7 @@ class FlaskAppTestCase(unittest.TestCase):
             'USER_ID' : 'test_3',
             'USER_NAME' : 'test__user 3',
             'MATCH_TAG' : "beer",
-            'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
+            'LOC': {'LONGITUDE' : 40, 'LATITUDE' : 9 }
             }
 
         headers = [('Content-Type', 'application/json')]
@@ -184,7 +184,7 @@ class FlaskAppTestCase(unittest.TestCase):
             'USER_ID' : 'test_4',
             'USER_NAME' : 'test__user 4',
             'MATCH_TAG' : "beer",
-            'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
+            'LOC': {'LONGITUDE' : 40, 'LATITUDE' : 9 }
             }
         response = self.app.post('/queue', headers, data=json.dumps(data))
         self.assertTrue(server.queue.find_one({'USER_ID' : 'test_1'}) is None)
@@ -198,7 +198,7 @@ class FlaskAppTestCase(unittest.TestCase):
             'USER_ID' : 'test_1',
             'USER_NAME' : 'test__user 1',
             'MATCH_TAG' : "beer",
-            'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
+            'LOC': {'LONGITUDE' : 40, 'LATITUDE' : 9 }
             }
         response = self.app.post('/queue', headers, data=json.dumps(data))
         self.assertTrue(server.queue.find_one({'USER_ID' : 'test_1'}) is None)
@@ -210,7 +210,7 @@ class FlaskAppTestCase(unittest.TestCase):
             'USER_ID' : 'test_2',
             'USER_NAME' : 'test__user 2',
             'MATCH_TAG' : "beer",
-            'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
+            'LOC': {'LONGITUDE' : 40, 'LATITUDE' : 9 }
             }
         response = self.app.post('/queue', headers, data=json.dumps(data))
         self.assertTrue(server.queue.find_one({'USER_ID' : 'test_1'}) is None)
@@ -222,7 +222,7 @@ class FlaskAppTestCase(unittest.TestCase):
             'USER_ID' : 'test_3',
             'USER_NAME' : 'test__user 3',
             'MATCH_TAG' : "beer",
-            'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
+            'LOC': {'LONGITUDE' : 40, 'LATITUDE' : 9 }
             }
         response = self.app.post('/queue', headers, data=json.dumps(data))
         self.assertTrue(server.queue.find_one({'USER_ID' : 'test_1'}) is None)
@@ -235,7 +235,7 @@ class FlaskAppTestCase(unittest.TestCase):
             'USER_ID' : 'test_1',
             'USER_NAME' : 'test__user 3',
             'MATCH_TAG' : "beer",
-            'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
+            'LOC': {'LONGITUDE' : 40, 'LATITUDE' : 9 }
             }
         response = self.app.post('/accept', headers, data=json.dumps(data)) 
         response = json.loads(response.data)      
@@ -246,7 +246,7 @@ class FlaskAppTestCase(unittest.TestCase):
             'USER_ID' : 'test_2',
             'USER_NAME' : 'test__user 3',
             'MATCH_TAG' : "beer",
-            'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
+            'LOC': {'LONGITUDE' : 40, 'LATITUDE' : 9 }
             }
         response = self.app.post('/accept', headers, data=json.dumps(data)) 
         response = json.loads(response.data)      
@@ -257,7 +257,7 @@ class FlaskAppTestCase(unittest.TestCase):
             'USER_ID' : 'test_3',
             'USER_NAME' : 'test__user 3',
             'MATCH_TAG' : "beer",
-            'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
+            'LOC': {'LONGITUDE' : 40, 'LATITUDE' : 9 }
             }
         response = self.app.post('/accept', headers, data=json.dumps(data)) 
         response = json.loads(response.data)      
@@ -278,7 +278,7 @@ class FlaskAppTestCase(unittest.TestCase):
             'USER_ID' : 'test_1',
             'USER_NAME' : 'test__user 3',
             'MATCH_TAG' : "beer",
-            'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
+            'LOC': {'LONGITUDE' : 40, 'LATITUDE' : 9 }
             }
         response = self.app.post('/finish', headers, data=json.dumps(data)) 
         response = json.loads(response.data)      
@@ -289,7 +289,7 @@ class FlaskAppTestCase(unittest.TestCase):
             'USER_ID' : 'test_1',
             'USER_NAME' : 'test__user 3',
             'EVALUATION' : {'foo':'bar'},
-            'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
+            'LOC': {'LONGITUDE' : 40, 'LATITUDE' : 9 }
             }
         response = self.app.post('/evaluate', headers, data=json.dumps(data)) 
         response = json.loads(response.data)      
@@ -304,7 +304,7 @@ class FlaskAppTestCase(unittest.TestCase):
                 'MATCH_TAG' : "beer"+str(idx),
                 'USER_ID' : 'test_idx_'+str(idx),
                 'USER_NAME' : 'test__user',
-                'LOC': {'LONGITUDE' : 100, 'LATITUDE' : 100 }
+                'LOC': {'LONGITUDE' : 40, 'LATITUDE' : 9 }
                 }
             users.append(data)
 
@@ -323,7 +323,7 @@ class FlaskAppTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
 
         # get queues
-        response = self.app.get('/queue?LON=100&LAT=100&RAD=1000')
+        response = self.app.get('/queue?LON=40&LAT=9&RAD=1000')
         self.assertEqual(response.status_code, 200)
         response = json.loads(response.data)   
         self.assertTrue(len(response['SEARCHENTRIES']) > 0)
@@ -336,7 +336,7 @@ class FlaskAppTestCase(unittest.TestCase):
                 'MATCH_TAG' : "beer"+str(idx),
                 'USER_ID' : 'test_idx_'+str(idx),
                 'USER_NAME' : 'test__user',
-                'LOC': {'LONGITUDE' : 100+idx, 'LATITUDE' : 100 +idx }
+                'LOC': {'LONGITUDE' : 40+idx, 'LATITUDE' : 40 +idx }
                 }
             users.append(data)
 
@@ -351,7 +351,7 @@ class FlaskAppTestCase(unittest.TestCase):
             response = self.app.post('/queue', headers, data=json.dumps(user))
 
         from bson.son import SON
-        results = server.db.command(SON([('geoNear', 'queue'), ('near', [100, 100]), ('num', 2)]))
+        results = server.db.command(SON([('geoNear', 'queue'), ('near', [48, 9]), ('num', 2)]))
 
         print "Testing geo near"
         for res in results['results']:

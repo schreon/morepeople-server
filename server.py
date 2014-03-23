@@ -379,14 +379,16 @@ def try_to_match(user_id):
                 app.logger.info("not notifying:" + qu['USER_ID'])
             else:
                 app.logger.info("notifying:" + qu['USER_ID'])
-                users_to_notify.append(qu['USER_ID'])
+                users_to_notify.append(qu['USER_ID'])                
         
         # notify the users via gcm
         app.logger.info("GCM")
         import gcm   
         if len(users_to_notify) > 0:
             app.logger.info("Sending GCM to" + str(users_to_notify))
-            gcm.send_to_users(users_to_notify, {'MP_MESSAGE_TYPE' : 'MATCH_FOUND'})
+            gcm.send_to_users(users_to_notify, {
+                'MP_MESSAGE_TYPE' : 'MATCH_FOUND'
+                })
         else:
             app.logger.info("NOT sending any GCM")
     else:

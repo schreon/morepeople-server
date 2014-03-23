@@ -574,7 +574,10 @@ def post_accept():
         import gcm   
         if len(users_to_notify) > 0:
             app.logger.info("Sending GCM to" + str(users_to_notify))
-            gcm.send_to_users(users_to_notify, {'MP_MESSAGE_TYPE' : 'CONFIRMATION'})
+            if accepted:
+                gcm.send_to_users(users_to_notify, {'MP_MESSAGE_TYPE' : 'RUNNING'})
+            else:
+                gcm.send_to_users(users_to_notify, {'MP_MESSAGE_TYPE' : 'CONFIRMATION'})
         else:
             app.logger.info("NOT sending any GCM")
 

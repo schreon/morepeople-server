@@ -372,12 +372,14 @@ def get_queue():
     # } ).limit(50)
     
     from bson.son import SON
+    import math
     local_results = db.command(
         SON([
             ('geoNear', 'queue'),
             ('near', [latitude, longitude]),
             ('num', 20),
-            ('spherical', True)
+            ('spherical', True),
+            ('distanceMultiplier', (6371.0 * math.pi / 180.0)) # for units in km
             ]))['results']
 
     #return flask.jsonify({})

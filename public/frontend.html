@@ -1,4 +1,4 @@
-<html ng-app>
+<html ng-app="morepeopleFrontend">
 <head>
 	<title>
 		morepeople
@@ -10,16 +10,42 @@
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css">
 
 </head>
-	<body>
-	<div class="container"> 
+	<body ng-controller="mainCtrl">
+	<div class="container" > 
 		<h1>morepeople <small>android</small></h1>
+		<p>
+			Du hast Lust etwas zu tun, aber Du hast keine Lust, etwas zu organisieren? Wie wäre es vielleicht hiermit:
+		</p>
+		<p>
+   			<table class="table table-hover table-striped" style="width:50%">
+				<tbody>
+					<tr ng-repeat="user in users">
+						<td>
+							<div class="clearfix">
+								<div class="pull-left">
+									{{ user.MATCH_TAG }}
+								</div>
+								<div class="pull-right">
+									{{ user.DISTANCE | number:2 }}km
+								</div>
+							</div>
+							<div class="clearfix">
+								<div class="pull-right">
+									<small><b>{{ user.USER_NAME }}</small>
+								</div>
+							</div>
+						</td>
+					</tr>
+				</tobdy>
+			</table>
+		</p>
 		<blockquote>
 		<p class="lead">
-			<a href="http://109.230.231.200/apk/app-debug-unaligned.apk">Debug APK herunterladen.</a>
+			Jetzt <a href="http://109.230.231.200/apk/app-debug-unaligned.apk">morepeople herunterladen</a> und mitmachen!
 		</p>
 		</blockquote>
 		<p>
-			Willkommen! Dies ist die Dokumentation zum zweiten Prototypen der Android App <em>morepeople</em>. Sie wurde an der <a href="http://www.hdm-stuttgart.de/">Hochschule der Medien Stuttgart</a> im Rahmen des Fachs <a href="https://www.mi.hdm-stuttgart.de/csm/studium/gliederung/Lehrveranstaltungen/vorlesung_detail?vorlesung_ID=5211653">Mobile Applications</a> von vier <abbr title="Computer Science and Media" class="initialism">CSM</abbr>-Studenten entwickelt.
+			Dies ist die Dokumentation zum zweiten Prototypen der Android App <em>morepeople</em>. Sie wurde an der <a href="http://www.hdm-stuttgart.de/">Hochschule der Medien Stuttgart</a> im Rahmen des Fachs <a href="https://www.mi.hdm-stuttgart.de/csm/studium/gliederung/Lehrveranstaltungen/vorlesung_detail?vorlesung_ID=5211653">Mobile Applications</a> von einer Hand voll <abbr title="Computer Science and Media" class="initialism">CSM</abbr>-Studenten entwickelt.
 		</p>
 		
 	</div> 
@@ -27,5 +53,7 @@
 	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.8/angular.min.js"></script>
 	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.8/angular-resource.min.js"></script>
 	<script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.9.0/ui-bootstrap-tpls.min.js"></script>
+	<script src="//rawgithub.com/arunisrael/angularjs-geolocation/master/dist/angularjs-geolocation.min.js"></script>
+	<script src="/frontend.js"></script>
 </body>
 </html>

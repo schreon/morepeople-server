@@ -126,8 +126,8 @@ def offline_response(user):
 def near_queues():
     data = json.loads(request.data)
 
-    lat = float(data['LOC']['lng'])
-    lng = float(data['LOC']['lat'])
+    lat = float(data['LOC']['lat'])
+    lng = float(data['LOC']['lng'])
 
     from bson.son import SON
     local_results = db.command(

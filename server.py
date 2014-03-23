@@ -377,7 +377,7 @@ def get_queue():
             ('geoNear', 'queue'),
             ('near', [longitude, latitude]),
             ('num', 20),
-            ('spherical', true)
+            ('spherical', True)
             ]))['results']
 
     #return flask.jsonify({})

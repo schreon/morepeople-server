@@ -33,8 +33,8 @@
 								<tr ng-repeat="mockUser in mockUsers">
 									<td><input class="form-control" type="text" ng-model="mockUser.USER_ID"></input></td>
 									<td><input class="form-control" type="text" ng-model="mockUser.USER_NAME"></input></td>
-									<td><input class="form-control" type="text" ng-model="mockUser.LOC.LONGITUDE"></input></td>
-									<td><input class="form-control" type="text" ng-model="mockUser.LOC.LATITUDE"></input></td>
+									<td><input class="form-control" type="text" ng-model="mockUser.LOC.lng"></input></td>
+									<td><input class="form-control" type="text" ng-model="mockUser.LOC.lat"></input></td>
 									<td><input class="form-control" type="text" ng-model="mockUser.MATCH_TAG"></input></td>
 									<td>
 										<button class="btn btn-primary" ng-click="queue(mockUser);">queue</button>
@@ -79,8 +79,8 @@
 							<tr ng-repeat="user in data.users">
 								<td> {{user.USER_ID}} </td>
 								<td> {{user.USER_NAME}} </td>
-								<td> {{user.LOC.LONGITUDE}} </td>
-								<td> {{user.LOC.LATITUDE}} </td>
+								<td> {{user.LOC.lng}} </td>
+								<td> {{user.LOC.lat}} </td>
 								<td> {{user.STATE}} </td>
 							</tr>
 						</tobdy>
@@ -131,8 +131,8 @@
 								<td> {{qu.USER_ID}} </td>
 								<td> {{qu.MATCH_TAG}} </td>
 								<td> {{qu.TIME_LEFT}} </td>
-								<td> {{qu.LOC.LONGITUDE}} </td>
-								<td> {{qu.LOC.LATITUDE}} </td>
+								<td> {{qu.LOC.lng}} </td>
+								<td> {{qu.LOC.lat}} </td>
 							</tr>
 						</tbody>
 					</table>

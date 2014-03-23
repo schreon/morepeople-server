@@ -68,7 +68,7 @@ tags.insert({ 'MATCH_TAG' : "pizza" })
 tags.insert({ 'MATCH_TAG' : "schweinereien" })
 
 import math
-DISTANCE_MULTIPLIER = 6378.137 #(6371.0 * math.pi / 180.0)
+DISTANCE_MULTIPLIER = 6378.137
 
 def sanitize_loc(loc):
     loc['lng'] = float(loc['lng'])
@@ -333,7 +333,7 @@ def try_to_match(user_id):
             ('query', {"MATCH_TAG" : res["MATCH_TAG"]}),
             ('near', [lat, lng]),
             ('num', 20),
-            ('maxDistance', 5.0),
+            ('maxDistance', 5.0 / DISTANCE_MULTIPLIER),
             ('spherical', True),
             ('distanceMultiplier', DISTANCE_MULTIPLIER) # for units in km
             ]))['results']

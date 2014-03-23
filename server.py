@@ -338,7 +338,7 @@ def try_to_match(user_id):
                 '$set' : {
                     'STATE' : 'OPEN'
                 }})
-
+        #
         # notify the users via gcm
         app.logger.info("GCM")
         import gcm

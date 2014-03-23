@@ -544,13 +544,12 @@ def post_accept():
         group = lobbies.find({'MATCH_ID' : match_id})
         accepted = True
         user_ids = []
+        
         for person in group:
             user_ids.append(person['USER_ID'])
             app.logger.info(person['USER_ID'] + " - STATE: " +person['STATE'])
             if person['STATE']  != 'ACCEPTED':
                 accepted = False
-
-        # TODO: send GCM message to all participants
 
         if accepted:
             app.logger.info("Inserting RUNNING MATCH")
@@ -560,9 +559,25 @@ def post_accept():
             # Delete lobby entries
             lobbies.remove({'MATCH_ID' : match_id})
 
+            users_to_notify = []
             # And create match entries
             for user_id in user_ids:
                 matches.insert({'USER_ID' : user_id, 'MATCH_ID' : match_id, 'STATE' : 'RUNNING'})
+
+                if user_id.startswith("test"):
+                    app.logger.info("not notifying:" + user_id)
+                else:
+                    app.logger.info("notifying:" + user_id)
+                    users_to_notify.append(user_id)
+
+            # notify the users via gcm
+            app.logger.info("GCM")
+            import gcm   
+            if len(users_to_notify) > 0:
+                app.logger.info("Sending GCM to" + str(users_to_notify))
+                gcm.send_to_users(users_to_notify, {'MP_MESSAGE_TYPE' : 'CONFIRMATION'})
+            else:
+                app.logger.info("NOT sending any GCM")
 
     # create user response
     return user_response(user_id)

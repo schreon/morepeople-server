@@ -325,7 +325,7 @@ def try_to_match(user_id):
         for qu in local_matches:
 
             # remove queue entry
-            queue.remove({'USER_ID' : qu['USER_ID']})-ä''
+            queue.remove({'USER_ID' : qu['USER_ID']})
 
             # Create lobby entry
             qu['STATE'] = 'OPEN'
@@ -346,7 +346,7 @@ def try_to_match(user_id):
             # skip test users
             if qu['USER_ID'].startswith(test):
                 continue
-            users_to_notify.append(qu.['USER_ID'])
+            users_to_notify.append(qu['USER_ID'])
         if len(users_to_notify) > 0:
             gcm.send_to_users(users_to_notify, {'MP_MESSAGE_TYPE' : 'MATCH_FOUND'})
     else:

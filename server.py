@@ -67,10 +67,12 @@ tags.insert({ 'MATCH_TAG' : "kochen" })
 tags.insert({ 'MATCH_TAG' : "pizza" })
 tags.insert({ 'MATCH_TAG' : "schweinereien" })
 
+import math
+DISTANCE_MULTIPLIER = 6378.137 #(6371.0 * math.pi / 180.0)
 
 def sanitize_loc(loc):
-    loc['LONGITUDE'] = float(loc['LONGITUDE'])
-    loc['LATITUDE'] = float(loc['LATITUDE'])
+    loc['lng'] = float(loc['lng'])
+    loc['lat'] = float(loc['lat'])
     return loc
 
 def sanitize_tag(tag):
@@ -124,18 +126,17 @@ def offline_response(user):
 def near_queues():
     data = json.loads(request.data)
 
-    latitude = float(data['LOC']['LONGITUDE'])
-    longitude = float(data['LOC']['LATITUDE'])
+    lat = float(data['LOC']['lng'])
+    lng = float(data['LOC']['lat'])
 
     from bson.son import SON
-    import math
     local_results = db.command(
         SON([
             ('geoNear', 'queue'),
-            ('near', [latitude, longitude]),
+            ('near', [lat, lng]),
             ('num', 20),
             ('spherical', True),
-            ('distanceMultiplier', (6371.0 * math.pi / 180.0)) # for units in km
+            ('distanceMultiplier', DISTANCE_MULTIPLIER) # for units in km
             ]))['results']
 
     results = []
@@ -322,20 +323,19 @@ def try_to_match(user_id):
     app.logger.info('try_to_match')
     app.logger.info(res)
 
-    latitude = float(res['LOC']['LONGITUDE'])
-    longitude = float(res['LOC']['LATITUDE'])
+    lat = float(res['LOC']['lng'])
+    lng = float(res['LOC']['lat'])
 
     from bson.son import SON
-    import math
     local_results = db.command(
         SON([
             ('geoNear', 'queue'),
             ('query', {"MATCH_TAG" : res["MATCH_TAG"]}),
-            ('near', [latitude, longitude]),
+            ('near', [lat, lng]),
             ('num', 20),
             ('maxDistance', 5.0),
             ('spherical', True),
-            ('distanceMultiplier', (6371.0 * math.pi / 180.0)) # for units in km
+            ('distanceMultiplier', DISTANCE_MULTIPLIER) # for units in km
             ]))['results']
 
     local_matches = []
@@ -347,7 +347,7 @@ def try_to_match(user_id):
     # local_matches = queue.find( {
     #     "LOC" : {
     #      "$maxDistance" : 1000, # 1km radius
-    #      "$near" : [float(res['LOC']['LONGITUDE']), float(res['LOC']['LATITUDE'])]
+    #      "$near" : [float(res['LOC']['lng']), float(res['LOC']['lat'])]
     #     },
     #     "MATCH_TAG" : res["MATCH_TAG"]
     # } )
@@ -396,25 +396,24 @@ def try_to_match(user_id):
 def get_queue():
     """ Returns list of nearby queues """
 
-    longitude = float(request.args['LON'])
-    latitude = float(request.args['LAT'])
+    lng = float(request.args['LON'])
+    lat = float(request.args['LAT'])
     radius = int(request.args['RAD'])
 
     # local_results = queue.find( {
     #     "LOC" : {
-    #      "$near" : [longitude, latitude]
+    #      "$near" : [lng, lat]
     #     }
     # } ).limit(50)
     
     from bson.son import SON
-    import math
     local_results = db.command(
         SON([
             ('geoNear', 'queue'),
-            ('near', [latitude, longitude]),
+            ('near', [lat, lng]),
             ('num', 20),
             ('spherical', True),
-            ('distanceMultiplier', (6371.0 * math.pi / 180.0)) # for units in km
+            ('distanceMultiplier', DISTANCE_MULTIPLIER) # for units in km
             ]))['results']
 
     results = []

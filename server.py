@@ -382,8 +382,14 @@ def get_queue():
             ('distanceMultiplier', (6371.0 * math.pi / 180.0)) # for units in km
             ]))['results']
 
+    results = []
+    for local_result in local_results:
+        res = local_result['obj']
+        res['DISTANCE'] = local_result['dis']
+        results.append(res)
+    
     #return flask.jsonify({})
-    return flask.jsonify(dict(SEARCHENTRIES=local_results))
+    return flask.jsonify(dict(SEARCHENTRIES=results))
 
 @app.route("/queue", methods=["POST"])
 def post_queue():

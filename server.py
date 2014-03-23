@@ -375,7 +375,7 @@ def get_queue():
     local_results = db.command(
         SON([
             ('geoNear', 'queue'),
-            ('near', [longitude, latitude]),
+            ('near', [latitude, longitude]),
             ('num', 20),
             ('spherical', True)
             ]))['results']

@@ -87,7 +87,7 @@
 
 		<div class="row">
 			<div class="page-header">
-				<h1>dokumentation <small>der konzeption, planung und evaluierung von version 1</small></h1>
+				<h1>dokumentation <small>der konzeption, planung und evaluierung</small></h1>
 			</div>
 			<blockquote class="bg-info">Es folgt die Dokumentation der <b>ersten Version</b> des Prototyps bezüglich Konzeption, Umsetzung, Evaluierung und den Schlüssen, die für die zweite Version daraus gezogen wurden. Weiter unten folgt die technische Dokumentation, welche sich bereits auf die oben angepriesene <b>zweite Version</b> bezieht.
 			</blockquote>
@@ -332,7 +332,7 @@ Eine weitere bessere Alternative wäre gewesen, den User zu einem noch früheren
 
 <div class="row">
 <div class="page-header">
-	<h1>dokumentation <small>der technischen umsetzung in bezug auf version 2</small></h1>
+	<h1>dokumentation <small>der technischen umsetzung</small></h1>
 </div>
 <div class="col-md-12">
 	<p>
@@ -370,11 +370,15 @@ Eine weitere bessere Alternative wäre gewesen, den User zu einem noch früheren
 
 	<h2>Implementierung des Android Clients</h2>
 	<p>Eine große Herausforderung war es, die Software Qualitäts- und Testing-Infrastruktur für die Entwicklung des Android-Clients zu realisieren. Als <em>IDE</em> kommt Android Studio zum Einsatz, als Build-Tool dient <em>Gradle</em>. Getestet wird via <em>Robolectric</em>, welches es erlaubt Android-Code in der <em>JVM</em> zu testen, ohne dabei auf ein reales Device oder einen Emulator zurück zu greifen. Dies ermöglicht das automatisierte Testen auf einem CI-Server und beschleunigt die Entwicklung der Software auf den Entwickler-Maschinen. Auf die Weise wie Robolectric für <em>Unit Tests</em> dient, kommt <em>Robotium</em> zum Einsatz, um <em>Regression Tests</em> zu realisieren. Mit Robotium ist es möglich, Use Cases 1:1 in einen gescripteten Ablauf umzusetzen. Enorme Unterstützung beim Entwickeln bot zudem das <a href="http://109.230.231.200:9000/dashboard/index/morepeopleandroid?did=1">Dashboard von <em>SonarQube</em></a>. </p>
+
 	<blockquote>
 		<a href="https://github.com/schreon/morepeople-android">GitHub-Repository für den morepeople android client</a>
 	</blockquote>
-		<blockquote>
+	<blockquote>
 		<a href="/javadoc/index.html">Generiertes JavaDoc für den morepeople android client</a>
+	</blockquote>
+	<blockquote>
+		<a href="http://109.230.231.200:9000/dashboard/index/morepeopleandroid?did=1">SonarQube Dashboard für den morepeople android client</a>
 	</blockquote>
 </div>
 </div>

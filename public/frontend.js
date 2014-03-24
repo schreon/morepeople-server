@@ -32,7 +32,7 @@ function mainCtrl($scope, $timeout, $http, geolocation) {
         $timeout(tick, 2000); 
     })();
 
-    /** carousel **/
+    /** carousel - v2**/
     $scope.slides = [
     	{
     		image : '/img/device-2014-03-23-221607.png',
@@ -61,6 +61,44 @@ function mainCtrl($scope, $timeout, $http, geolocation) {
     	},{
     		image : '/img/device-2014-03-23-222050.png',
     		text : '...'
+    	},
+    ];
+
+    $scope.wireframes = [
+    	{
+    		image : '/img/wireframe-01.png',
+    		image2 : '/img/v1-01.png',
+    		text : "Startscreen"
+    	},
+    	{
+    		image : '/img/wireframe-02.png',
+    		image2 : '/img/v1-02.png',
+    		text : "Auf Teilnehmer warten"
+    	},
+    	{
+    		image : '/img/wireframe-03.png',
+    		image2 : '/img/v1-03.png',
+    		text : "Teilnehmer gefunden"
+    	},
+    	{
+    		image : '/img/wireframe-04.png',
+    		image2 : '/img/v1-04.png',
+    		text : "Treffpunkt auf Map anzeigen"
+    	},
+    	{
+    		image : '/img/wireframe-05.png',
+    		image2 : '/img/v1-05.png',
+    		text : "Aktivität findet statt"
+    	},
+    	{
+    		image : '/img/wireframe-06.png',
+    		image2 : '/img/v1-06.png',
+    		text : "Aktivität beenden"
+    	},
+    	{
+    		image : '/img/wireframe-07.png',
+    		image2 : '/img/v1-07.png',
+    		text : "Negative Bewertung"
     	},
     ];
 }

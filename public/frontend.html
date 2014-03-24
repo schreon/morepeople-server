@@ -66,12 +66,13 @@
 			</p>
 			<blockquote>
 			<p class="lead">
-				Jetzt <a href="http://109.230.231.200/apk/app-debug-unaligned.apk">morepeople herunterladen</a> und mitmachen!
+				Jetzt <a href="http://109.230.231.200/apk/app-debug-unaligned.apk">morepeople herunterladen</a> und mitmachen!<br>
+				Um Test-User zu erstellen und zu verwalten geht es <a href="/backend">hier zum Test-Backend</a>.
 			</p>
 			</blockquote>
 
 			<p class="text-justify">
-				Dies ist die Dokumentation zum zweiten Prototypen der Android App <em>morepeople</em>. Sie wurde an der <a href="http://www.hdm-stuttgart.de/">Hochschule der Medien Stuttgart</a> im Rahmen des Fachs <a href="https://www.mi.hdm-stuttgart.de/csm/studium/gliederung/Lehrveranstaltungen/vorlesung_detail?vorlesung_ID=5211653">Mobile Applications</a> von einer Hand voll <abbr title="Computer Science and Media" class="initialism">CSM</abbr>-Studenten entwickelt. Ziel der App ist es, Leute mit ähnlichen Interessen spontan zusammen zu bringen. Dabei liegt das Hauptaugenmerk auf Schlichtheit und einer unkomplizierten Bedienung. Daher ist es für die Benutzung der App kein lästiger Registrierungs-Prozess notwendig. Einfach die App installieren und loslegen!
+				Dies ist der zweite Prototyp der Android App <em>morepeople</em>. Er wurde an der <a href="http://www.hdm-stuttgart.de/">Hochschule der Medien Stuttgart</a> im Rahmen des Fachs <a href="https://www.mi.hdm-stuttgart.de/csm/studium/gliederung/Lehrveranstaltungen/vorlesung_detail?vorlesung_ID=5211653">Mobile Applications</a> von einer Hand voll <abbr title="Computer Science and Media" class="initialism">CSM</abbr>-Studenten entwickelt. Ziel der App ist es, Leute mit ähnlichen Interessen spontan zusammen zu bringen. Dabei liegt das Hauptaugenmerk auf Schlichtheit und einer unkomplizierten Bedienung. Daher ist es für die Benutzung der App kein lästiger Registrierungs-Prozess notwendig. Einfach die App installieren und loslegen!
 			</p>
 			<hr/>
 
@@ -82,22 +83,37 @@
 			      </slide>
 			    </carousel>
 			</div>
+		</div>
 
-			<hr/>
+		<div class="row">
+			<div class="page-header">
+				<h1>dokumentation <small>morepeople version 1</small></h1>
+			</div>
+			<blockquote class="bg-info">
+				Es folgt die Dokumentation der <b>ersten Version</b> des Prototyps. Oben angepriesen ist bereits die weiterentwickelte zweite Version.
+			</blockquote>
+			<p class="text-justify">
+				Ein von Faulheit geprägtes Studentenleben kann einem spätestens dann zum Verhängnis werden, wenn man alleine zuhause sitzt und nach einer Beschäftigung mit seinen Freunden sucht, diese aber anderweitig verplant sind. Neue Leute kennen lernen, mit denen man spontan etwas unternehmen könnte, wäre für dieses Problem eine Option, doch kaum einer traut sich allein auf eine Party oder redet wildfremde Leute in einer Kneipe an. Um einem perspektivlosen Abend vor dem Fernseher entgegenzuwirken, soll die Smartphone App <em>morepeople</em> Abhilfe schaffen. Mit einem einzigen Klick kann man in der Nähe befindliche Aktivitäten von anderen Studenten durchsuchen oder selbst eine Aktivität erstellen, der beigetreten werden kann. 
+			</p>
+			<p class="text-justify">
+				Die Idee von <em>morepeople</em> ist es, dem User die Planung und das Treffen einer Interessengruppe zu erleichtern. Die App soll vor allem schüchterne Menschen dazu animieren, neue Leute kennenzulernen und gemeinsame Aktivitäten spontan zu starten oder mitzumachen. Das Erstellen oder Beitreten einer Aktivität soll intuitiv und ohne ausführliche Anleitung zu bewerkstelligen sein, zu dem wird ein Userprofil automatisch anhand der Device-ID erstellt und ein aufwändiger Registrierungsschritt damit überflüssig.
+				Die erste Version stellt vier verschiedene Aktivitäten zur Verfügung, zwischen denen der User wählen kann: Pizza essen, Kochen, Bier trinken oder Kaffee trinken.
+				Die Gruppengröße wurde auf drei Personen festgelegt, zum Einen, um eine Dating-App zu verhindern, zum Anderen, um schnell eine Aktivität starten zu können. Nach dem Zustandekommen einer Gruppe wird ein Treffpunkt in der Nähe aller Gruppenmitglieder automatisch generiert und eine Zeit festgelegt. Per Chat können daraufhin weitere Absprachen getroffen werden. 
+			</p>
 			<h2>Konzipierung</h2>
 			<h3>Konkurenzanalyse</h3>
 		</div>
 		<div class="row">
 			<div class="col-md-6">
 				<h4>Spontacts</h4>
-				<p>
+				<p class="text-justify">
 					Spontacts ist eine App für Android und iPhone mit zugehöriger Webplattform. Jeder, der etwas unternehmen will kann sich registrieren und eine Aktivität anlegen. Interessierte können diese Aktivität dann beobachten, kommentieren oder ihr Kommen ankündigen. Der Registrierungsprozess und das Anlegen/Suchen einer Aktivität erwies sich nach einem Testversuch jedoch mehr als umständlich und man wurde von unsortierten Informationen teilweise überladen.
 				</p>
 				<img src="/img/spontacts.png" class="img-rounded img-responsive">
 			</div>
 			<div class="col-md-6">
 				<h4>Voxle</h4>
-				<p>
+				<p class="text-justify">
 					Voxle spezialisiert sich auf Dating und bietet das Feature „Scan“ an, mit dem man nach Leuten in seinem Umkreis suchen kann, die Voxle ebenfalls verwenden. Eine Registrierung ist auch hier notwendig, mindestens eine Anmeldung über Facebook oder Google. Beim Testen der App erwies sich die Teilnehmerzahl als äußerst gering und die Menüführung als teilweise sehr unverständlich und unintuitiv.
 				</p>
 				<img src="/img/voxle.png" class="img-rounded img-responsive">
@@ -118,6 +134,7 @@
 					<li>Sollte die App Beachtung finden, ist es problemlos möglich das Zielgebiet sowie die Zielgruppe zu erweitern. </li>
 			</p>
 		</div>
+		<hr/>
 		<div class="row">
 			<h3>Personas</h3>
 			<div class="col-md-6">
@@ -181,10 +198,44 @@ In ihrer beschränkten Freizeit würde sie gerne mehr mit Kommilitonen oder Mitb
 				</tbody>
 				</table>
 			</div>
-			</hr>
 		</div>
-	</div> 
+		<hr/>
 
+	<div class="row">
+			<div class="col-md-12">
+			<h3>Szenario</h3>
+			<p class="text-justify">
+Es ist 19:30 Uhr und Jörg ist daheim in seinem kleinen Zimmer im Wohnheim. Er überlegt, was er mit dem angebrochenen Abend noch anstellen soll. Irgendwie hätte er noch Lust auf ein Feierabendbier, also startet er die App „MorePeople“ und trägt in das Suchfeld “Bier trinken” ein.</p>
+<p class="text-justify">
+20 Minuten später erscheint eine Pop-up-Nachricht auf seinem Handy, welche anzeigt, dass Andrea und Corinna ebenfalls Lust auf Bier trinken hätten. Das System schlägt die Zeit 20:30 Uhr und den Ort „Bierautomat am Wohnheim“ vor. Jörg ist bereit und drückt auf “Verbindlich zusagen”. Corinna und Andrea haben zu dem Match ebenfalls zugesagt und der “Treffen findet statt”-Screen erscheint. Die drei Treffen sich wie vereinbart um 20:30 Uhr am Bierautomaten im Wohnheim und führten interessante Gespräche. Das Treffen verlief für alle erfolgreich, weshalb alle bei der Abschlussbewertung “Alles cool” angeben.
+			</p>
+		</div>
+		</div>
+	<hr/>
+
+	<div class="row">
+		<div class="col-md-12">
+		<h3>Struktur und aufbau</h3>
+		<p class="text-justify">
+			<em>morepeople</em> zeichnet sich vor allem durch eine einfache und intuitive Benutzerführung aus. Ohne große Erklärung und Eingewöhnung soll sofort klar sein, was auf dem jeweiligen Screen zu tun ist. 
+		</p>
+
+		<h4>Wireframes und die Implementierung im ersten Prototyp</h4>
+		<div class="bg-success">
+			<carousel interval="5000">
+		      <slide ng-repeat="slide in wireframes" active="slide.active">
+		      	<div class="clearfix text-center" style="margin:auto;">
+			        <img ng-src="{{slide.image}}" style="height:510px;">
+			        <img ng-src="{{slide.image2}}" style="margin-left:10px;height:510px;">
+			    </div>
+		        <div class="bg-primary" style="padding:10px; margin-top:5px;"><h4>{{slide.text}}</h4></div>
+		      </slide>			      
+		    </carousel>
+		</div>
+
+		</div>
+	</div>
+</div> 
 	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.8/angular.min.js"></script>
 	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.8/angular-resource.min.js"></script>
 	<script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.9.0/ui-bootstrap-tpls.min.js"></script>

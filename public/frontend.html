@@ -214,7 +214,7 @@ Es ist 19:30 Uhr und Jörg ist daheim in seinem kleinen Zimmer im Wohnheim. Er �
 
 	<div class="row">
 		<div class="col-md-12">
-		<h3>Struktur und aufbau</h3>
+		<h3>Struktur und Aufbau</h3>
 		<p class="text-justify">
 			<em>morepeople</em> zeichnet sich vor allem durch eine einfache und intuitive Benutzerführung aus. Ohne große Erklärung und Eingewöhnung soll sofort klar sein, was auf dem jeweiligen Screen zu tun ist. 
 		</p>
@@ -358,6 +358,18 @@ Eine weitere bessere Alternative wäre gewesen, den User zu einem noch früheren
 		Die Applikations-Logik geht jetzt davon aus, dass die User sich in der realen Welt treffen und der App zunächst keine gesondere Aufmerksamkeit mehr schenken, bis sie sich auf dem Heimweg befinden. Spätestens wenn ein User wieder eine neue Aktivität starten oder einer solchen beitreten möchte, muss er erst einmal angeben, dass das Treffen -zumindest für ihn- vorüber ist. Dies versetzt ihn vom <code>RUNNING</code> Zustand in den <code>FINISHED</code> Zustand.
 	</p>
 	<p> Der Grund, weshalb er nicht gleich wieder in den initialen <code>OFFLINE</code> Zustand geschickt wird ist der, dass noch eine <em>Evaluation</em> über die anderen Teilnehmer stattfinden soll. Diese Evaluation soll auf der einen Seite für später geplante <em>Gamification</em> Features dienen, auf der anderen Seite soll hier abgefragt werden, ob sich ein Teilnehmer inadäquat verhalten hat.
+	</p>
+
+	<h2>Implementierung des Servers</h2>
+	<p>
+	Der Server ist in der Programmiersprache <em>Python</em> programmiert und basiert auf dem Web-Framework <em>Flask</em>. Zur Persistenz dient <em>MongoDB</em>, als Daten-Austauschformat <em>JSON</em>. Der Server bietet eine <em>RESTful</em>-Schnittstelle an, welche sowohl vom Android-Client als auch von dem Server Frontend (das Widget am Anfang dieser Seite) und dem Backend gleichermaßen angesteuert wird. Der Server wurde streng <em>test-getrieben</em> entwickelt. Das Backend und die hier betrachtete Seite wurden mit <em>HTML</em>, <em>CSS</em>, <em>JavaScript</em>, dem CSS-Framework <em>Bootstrap</em> und dem <em>Model-View-Whatever</em>(MVW)-Framework <em>Angular.js</em> umgesetzt.
+</p>
+
+	<h2>Implementierung des Android Clients</h2>
+	<p>Eine große Herausforderung war es, die Software Qualitäts- und Testing-Infrastruktur für die Entwicklung des Android-Clients zu realisieren. Als <em>IDE</em> kommt Android Studio zum Einsatz, als Build-Tool dient <em>Gradle</em>. Getestet wird via <em>Robolectric</em>, welches es erlaubt Android-Code in der <em>JVM</em> zu testen, ohne dabei auf ein reales Device oder einen Emulator zurück zu greifen. Dies ermöglicht das automatisierte Testen auf einem CI-Server und beschleunigt die Entwicklung der Software auf den Entwickler-Maschinen. Auf die Weise wie Robolectric für <em>Unit Tests</em> dient, kommt <em>Robotium</em> zum Einsatz, um <em>Regression Tests</em> zu realisieren. Mit Robotium ist es möglich, Use Cases 1:1 in einen gescripteten Ablauf umzusetzen. Enorme Unterstützung beim Entwickeln bot zudem das <a href="http://109.230.231.200:9000/dashboard/index/morepeopleandroid?did=1">Dashboard von <em>SonarQube</em></a>. </p>
+
+	<p>
+
 	</p>
 </div>
 </div>

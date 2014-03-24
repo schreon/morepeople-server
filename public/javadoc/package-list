@@ -1,0 +1,8 @@
+android.support.v7.appcompat
+com.google.android.gms
+morepeople.android.app
+morepeople.android.app.controller
+morepeople.android.app.core
+morepeople.android.app.factory
+morepeople.android.app.interfaces
+morepeople.android.app.structures

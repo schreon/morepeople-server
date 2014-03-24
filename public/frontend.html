@@ -363,14 +363,19 @@ Eine weitere bessere Alternative wäre gewesen, den User zu einem noch früheren
 	<h2>Implementierung des Servers</h2>
 	<p>
 	Der Server ist in der Programmiersprache <em>Python</em> programmiert und basiert auf dem Web-Framework <em>Flask</em>. Zur Persistenz dient <em>MongoDB</em>, als Daten-Austauschformat <em>JSON</em>. Der Server bietet eine <em>RESTful</em>-Schnittstelle an, welche sowohl vom Android-Client als auch von dem Server Frontend (das Widget am Anfang dieser Seite) und dem Backend gleichermaßen angesteuert wird. Der Server wurde streng <em>test-getrieben</em> entwickelt. Das Backend und die hier betrachtete Seite wurden mit <em>HTML</em>, <em>CSS</em>, <em>JavaScript</em>, dem CSS-Framework <em>Bootstrap</em> und dem <em>Model-View-Whatever</em>(MVW)-Framework <em>Angular.js</em> umgesetzt.
-</p>
+	</p>
+	<blockquote>		
+		<a href="https://github.com/schreon/morepeople-server">GitHub-Repository für den morepeople server</a>
+	</blockquote>
 
 	<h2>Implementierung des Android Clients</h2>
 	<p>Eine große Herausforderung war es, die Software Qualitäts- und Testing-Infrastruktur für die Entwicklung des Android-Clients zu realisieren. Als <em>IDE</em> kommt Android Studio zum Einsatz, als Build-Tool dient <em>Gradle</em>. Getestet wird via <em>Robolectric</em>, welches es erlaubt Android-Code in der <em>JVM</em> zu testen, ohne dabei auf ein reales Device oder einen Emulator zurück zu greifen. Dies ermöglicht das automatisierte Testen auf einem CI-Server und beschleunigt die Entwicklung der Software auf den Entwickler-Maschinen. Auf die Weise wie Robolectric für <em>Unit Tests</em> dient, kommt <em>Robotium</em> zum Einsatz, um <em>Regression Tests</em> zu realisieren. Mit Robotium ist es möglich, Use Cases 1:1 in einen gescripteten Ablauf umzusetzen. Enorme Unterstützung beim Entwickeln bot zudem das <a href="http://109.230.231.200:9000/dashboard/index/morepeopleandroid?did=1">Dashboard von <em>SonarQube</em></a>. </p>
-
-	<p>
-
-	</p>
+	<blockquote>
+		<a href="https://github.com/schreon/morepeople-android">GitHub-Repository für den morepeople android client</a>
+	</blockquote>
+		<blockquote>
+		<a href="/javadoc/index.html">Generiertes JavaDoc für den morepeople android client</a>
+	</blockquote>
 </div>
 </div>
 

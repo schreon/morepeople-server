@@ -346,9 +346,19 @@ Eine weitere bessere Alternative wäre gewesen, den User zu einem noch früheren
 		Die <em>Use Cases</em> aus der Konzeptionsphase können anhand der hier abgebildeten <em>state machine</em> durchgespielt werden. Startet ein User die App zum ersten mal, so befindet er sich zunächst im <code>OFFLINE</code> Zustand. Dies bezieht sich lediglich auf den Zustand des Users im Programmablauf, nicht jedoch auf seine Netzwerkverbindung. Aus diesem Zustand heraus kann die Applikation Suchanfragen an den Server schicken, um die Gesuche anderer User aus der näheren Umgebung zu finden.
 	</p>
 	<p>
-		Entscheidet sich der User, nach Teilnehmern für eine Aktivität zu suchen, so wird der User in den <code>QUEUED</code> Zustand überführt.
+		Entscheidet sich der User dafür, nach Teilnehmern für eine Aktivität zu suchen, so wird er in den <code>QUEUED</code> Zustand überführt. In diesem verweilt er, bis zwei weitere, nah genug befindliche User nach der selben Aktivität suchen. Ist dies der Fall, so detektiert der Server einen <em>match</em> und überführt alle drei User in den <code>OPEN</code> Zustand. Zudem wird eine Google Cloud Messaging Nachricht an alle betroffenen Clients gesendet, um das Endgerät aufzuwecken und den User über eine <code>Notification</code> darüber in Kenntnis zu setzen, dass ein <em>match</em> zustande kam.
 	</p>
-
+	<p>
+		Im <code>OPEN</code> Zustand wird darauf gewartet, dass alle User verbindlich zusagen. Dieser Zwischenschritt zur eigentlichen Aktivität dient dazu, den potenziellen Teilnehmern noch einmal die Möglichkeit zu bieten, von ihrem Gesuch zurück zu treten ohne dass dies negative Konsequenzen für sie haben könnte. Sagt der User zu, so wird er in den verbindlichen <code>ACCEPTED</code> Zustand überführt, aus welchem heraus er nicht mehr abbrechen kann.
+	</p>
+	<p>
+		Sobald alle drei User im <code>ACCEPTED</code> Zustand sind, werden sie unverzüglich in den <code>RUNNING</code> Zustand versetzt. Auch dies wird wiederum über eine Notification bekannt gegeben. Dieser Zustand ist dafür vorgesehen, alle User zu einem gemeinsamen Treffpunkt zu navigieren und ihnen eine Möglichkeit für kurzfristige Absprachen via textuellen Chat zu bieten.
+	</p>
+	<p>
+		Die Applikations-Logik geht jetzt davon aus, dass die User sich in der realen Welt treffen und der App zunächst keine gesondere Aufmerksamkeit mehr schenken, bis sie sich auf dem Heimweg befinden. Spätestens wenn ein User wieder eine neue Aktivität starten oder einer solchen beitreten möchte, muss er erst einmal angeben, dass das Treffen -zumindest für ihn- vorüber ist. Dies versetzt ihn vom <code>RUNNING</code> Zustand in den <code>FINISHED</code> Zustand.
+	</p>
+	<p> Der Grund, weshalb er nicht gleich wieder in den initialen <code>OFFLINE</code> Zustand geschickt wird ist der, dass noch eine <em>Evaluation</em> über die anderen Teilnehmer stattfinden soll. Diese Evaluation soll auf der einen Seite für später geplante <em>Gamification</em> Features dienen, auf der anderen Seite soll hier abgefragt werden, ob sich ein Teilnehmer inadäquat verhalten hat.
+	</p>
 </div>
 </div>
 

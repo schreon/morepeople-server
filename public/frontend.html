@@ -4,50 +4,85 @@
 		morepeople
 	</title>
 	<!-- Latest compiled and minified CSS -->
-	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
 
 	<!-- Optional theme -->
-	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
 
+	<style>
+	.carousel-indicators li
+		{
+		  border-color:#000;
+		  border-width:2px;
+		  width:10px;
+		  height:10px;
+		}
+	.carousel-indicators li.active
+		{
+		  width:15px;
+		  height:15px;
+		  background-color:red;
+		}
+	</style>
 </head>
 	<body ng-controller="mainCtrl">
+
 	<div class="container" > 
-		<h1>morepeople <small>android</small></h1>
-		<p>
-			Du hast Lust etwas zu tun, aber Du hast keine Lust, etwas zu organisieren? Wie wäre es vielleicht hiermit:
-		</p>
-		<p>
-   			<table class="table table-hover table-striped">
-				<tbody>
-					<tr ng-repeat="user in users">
-						<td>
-							<div class="clearfix">
-								<div class="pull-left">
-									{{ user.MATCH_TAG }}
+		<div class="page-header">
+			<h1>morepeople <small>android</small></h1>
+		</div>
+		<div class="row">	
+			<blockquote>
+				<p class="lead">
+					Du hast etwas vor, aber brauchst mehr Leute? Oder möchtest Du dich lieber jemandem anschließen?<br>
+					Wie wäre es vielleicht hiermit:<br>
+				</p>
+			</blockquote>
+			<p>
+	   			<table class="table table-hover table-striped">
+					<tbody>
+						<tr ng-repeat="user in users | limitTo:5">
+							<td>
+								<div class="clearfix">
+									<div class="pull-left">
+										{{ user.MATCH_TAG }}
+									</div>
+									<div class="pull-right">
+										{{ user.DISTANCE | number:2 }}km
+									</div>
 								</div>
-								<div class="pull-right">
-									{{ user.DISTANCE | number:2 }}km
+								<div class="clearfix">
+									<div class="pull-right">
+										<small><b>{{ user.USER_NAME }}</small>
+									</div>
 								</div>
-							</div>
-							<div class="clearfix">
-								<div class="pull-right">
-									<small><b>{{ user.USER_NAME }}</small>
-								</div>
-							</div>
-						</td>
-					</tr>
-				</tobdy>
-			</table>
-		</p>
-		<blockquote>
-		<p class="lead">
-			Jetzt <a href="http://109.230.231.200/apk/app-debug-unaligned.apk">morepeople herunterladen</a> und mitmachen!
-		</p>
-		</blockquote>
-		<p>
-			Dies ist die Dokumentation zum zweiten Prototypen der Android App <em>morepeople</em>. Sie wurde an der <a href="http://www.hdm-stuttgart.de/">Hochschule der Medien Stuttgart</a> im Rahmen des Fachs <a href="https://www.mi.hdm-stuttgart.de/csm/studium/gliederung/Lehrveranstaltungen/vorlesung_detail?vorlesung_ID=5211653">Mobile Applications</a> von einer Hand voll <abbr title="Computer Science and Media" class="initialism">CSM</abbr>-Studenten entwickelt.
-		</p>
-		
+							</td>
+						</tr>
+					</tobdy>
+				</table>
+			</p>
+			<blockquote>
+			<p class="lead">
+				Jetzt <a href="http://109.230.231.200/apk/app-debug-unaligned.apk">morepeople herunterladen</a> und mitmachen!
+			</p>
+			</blockquote>
+
+			<p class="text-justify">
+				Dies ist die Dokumentation zum zweiten Prototypen der Android App <em>morepeople</em>. Sie wurde an der <a href="http://www.hdm-stuttgart.de/">Hochschule der Medien Stuttgart</a> im Rahmen des Fachs <a href="https://www.mi.hdm-stuttgart.de/csm/studium/gliederung/Lehrveranstaltungen/vorlesung_detail?vorlesung_ID=5211653">Mobile Applications</a> von einer Hand voll <abbr title="Computer Science and Media" class="initialism">CSM</abbr>-Studenten entwickelt. Ziel der App ist es, Leute mit ähnlichen Interessen spontan zusammen zu bringen. Dabei liegt das Hauptaugenmerk auf Schlichtheit und einer unkomplizierten Bedienung. Daher ist es für die Benutzung der App kein lästiger Registrierungs-Prozess notwendig. Einfach die App installieren und loslegen!
+			</p>
+			<hr/>
+
+			<div class="bg-primary">
+				<carousel interval="5000">
+			      <slide ng-repeat="slide in slides" active="slide.active">
+			        <img ng-src="{{slide.image}}" style="margin:auto;">
+			      </slide>
+			    </carousel>
+			</div>
+
+			<hr/>
+			<p> ... </p>
+		</div>
 	</div> 
 
 	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.8/angular.min.js"></script>

@@ -10,14 +10,14 @@ import json
 import csv
 import StringIO
 
+import math
 import os
 import tempfile
 
-static_folder = os.path.join('public')
-
-app = Flask("MatchmakingClient",
-            static_folder=static_folder, static_url_path='')
-
+import logging
+from logging.handlers import RotatingFileHandler
+import pymongo
+from pymongo import MongoClient
 from json import JSONEncoder
 from bson.objectid import ObjectId
 
@@ -27,47 +27,40 @@ class MongoEncoder(JSONEncoder):
             return str(obj)
         else:            
             return JSONEncoder.default(obj, **kwargs)
-app.json_encoder = MongoEncoder
 
-import logging
-from logging.handlers import RotatingFileHandler
-file_handler = RotatingFileHandler(os.environ['MORE_PEOPLE_LOG'], maxBytes=1024 * 1024 * 100, backupCount=20)
-file_handler.setLevel(logging.INFO)
-formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-file_handler.setFormatter(formatter)
-app.logger.addHandler(file_handler)
+def init():
+    global app, db, users, tags, queue, lobbies, matches, evaluations
+    static_folder = os.path.join('public')
+    app = Flask("MatchmakingClient",
+                static_folder=static_folder, static_url_path='')
 
-app.logger.setLevel(logging.INFO)
-api = flask.ext.restful.Api(app)
+    app.json_encoder = MongoEncoder
 
-import pymongo
-from pymongo import MongoClient
-mongoclient, db, queue, tags = None, None, None, None
-url = os.environ['MORE_PEOPLE_DB']
-mongoclient = MongoClient(url)
+    file_handler = RotatingFileHandler(os.environ['MORE_PEOPLE_LOG'], maxBytes=1024 * 1024 * 100, backupCount=20)
+    file_handler.setLevel(logging.INFO)
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    file_handler.setFormatter(formatter)
+    app.logger.addHandler(file_handler)
 
-db = mongoclient['matchmaking']
-tags = db['tags']
-users = db['users']
-queue = db['queue']
-lobbies = db['lobbies']
-matches = db['matches']
-evaluations = db['evaluations']
+    app.logger.setLevel(logging.INFO)
+    api = flask.ext.restful.Api(app)
 
-users.remove({})
-queue.remove({})
-tags.remove({})
-lobbies.remove({})
-matches.remove({})
-evaluations.remove({})
+    mongoclient, db, queue, tags = None, None, None, None
+    url = os.environ['MORE_PEOPLE_DB']
+    mongoclient = MongoClient(url)
 
-tags.insert({ 'MATCH_TAG' : "kaffee" })
-tags.insert({ 'MATCH_TAG' : "bier" })
-tags.insert({ 'MATCH_TAG' : "kochen" })
-tags.insert({ 'MATCH_TAG' : "pizza" })
-tags.insert({ 'MATCH_TAG' : "schweinereien" })
+    db = mongoclient[os.environ['MORE_PEOPLE_DB_NAME']]
+    tags = db['tags']
+    users = db['users']
+    queue = db['queue']
+    lobbies = db['lobbies']
+    matches = db['matches']
+    evaluations = db['evaluations']
 
-import math
+    print os.environ['MORE_PEOPLE_DB_NAME']
+
+init()
+
 DISTANCE_MULTIPLIER = 6378.137
 
 def sanitize_loc(loc):

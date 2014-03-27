@@ -11,11 +11,11 @@ class FlaskAppTestCase(unittest.TestCase):
         os.environ['MORE_PEOPLE_DB'] = 'localhost'
         os.environ['MORE_PEOPLE_DB_NAME'] = 'morepeople_testing'
         os.environ['MORE_PEOPLE_LOG'] = 'morepeople_test.log'
-        import server
+        import server        
         self.server = server
-
         # chooses testing config, i.e. in-memory db:
         self.app = self.server.app.test_client()
+        
 
     def setUp(self):
         self.server.users.remove({})

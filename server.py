@@ -28,38 +28,32 @@ class MongoEncoder(JSONEncoder):
         else:            
             return JSONEncoder.default(obj, **kwargs)
 
-def init():
-    global app, db, users, tags, queue, lobbies, matches, evaluations
-    static_folder = os.path.join('public')
-    app = Flask("MatchmakingClient",
-                static_folder=static_folder, static_url_path='')
+static_folder = os.path.join('public')
+app = Flask("MatchmakingClient",
+            static_folder=static_folder, static_url_path='')
 
-    app.json_encoder = MongoEncoder
+app.json_encoder = MongoEncoder
 
-    file_handler = RotatingFileHandler(os.environ['MORE_PEOPLE_LOG'], maxBytes=1024 * 1024 * 100, backupCount=20)
-    file_handler.setLevel(logging.INFO)
-    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-    file_handler.setFormatter(formatter)
-    app.logger.addHandler(file_handler)
+file_handler = RotatingFileHandler(os.environ['MORE_PEOPLE_LOG'], maxBytes=1024 * 1024 * 100, backupCount=20)
+file_handler.setLevel(logging.INFO)
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+file_handler.setFormatter(formatter)
+app.logger.addHandler(file_handler)
 
-    app.logger.setLevel(logging.INFO)
-    api = flask.ext.restful.Api(app)
+app.logger.setLevel(logging.INFO)
+api = flask.ext.restful.Api(app)
 
-    mongoclient, db, queue, tags = None, None, None, None
-    url = os.environ['MORE_PEOPLE_DB']
-    mongoclient = MongoClient(url)
+mongoclient, db, queue, tags = None, None, None, None
+url = os.environ['MORE_PEOPLE_DB']
+mongoclient = MongoClient(url)
 
-    db = mongoclient[os.environ['MORE_PEOPLE_DB_NAME']]
-    tags = db['tags']
-    users = db['users']
-    queue = db['queue']
-    lobbies = db['lobbies']
-    matches = db['matches']
-    evaluations = db['evaluations']
-
-    print os.environ['MORE_PEOPLE_DB_NAME']
-
-init()
+db = mongoclient[os.environ['MORE_PEOPLE_DB_NAME']]
+tags = db['tags']
+users = db['users']
+queue = db['queue']
+lobbies = db['lobbies']
+matches = db['matches']
+evaluations = db['evaluations']
 
 DISTANCE_MULTIPLIER = 6378.137
 
